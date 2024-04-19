@@ -1,7 +1,8 @@
+import logging
 import os
 
 from babyvec.common import FileRef
-from babyvec.embedding_store import EmbeddingStore
+from babyvec.embedding_store_numpy import EmbeddingStoreNumpy
 from babyvec.local_embedder import LocalEmbedder
 from babyvec.models import Embedding
 
@@ -16,11 +17,13 @@ class BabyVecLocalEmbedder:
             device: str,
     ):
         self.persist_fref = FileRef.parse(persist_path)
-        if not os.path.exists(self.persist_fref.abspath):
-           EmbeddingStore.initialize(
-               embedding_size=embedding_size,
-           ).persist_to_disk(self.persist_fref)
-        self._store = EmbeddingStore.load_from_disk(storage_path=self.persist_fref)
+        if not os.path.exists(self.persist_fref.absdir):
+            logging.debug("no persistent record found...")
+            EmbeddingStoreNumpy.initialize(
+                embedding_size=embedding_size,
+            ).persist_to_disk(self.persist_fref)
+
+        self._store = EmbeddingStoreNumpy.load_from_disk(storage_path=self.persist_fref)
         self._embedder = LocalEmbedder(
             store=self._store,
             model=model,
@@ -35,5 +38,6 @@ class BabyVecLocalEmbedder:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        logging.info("writing to disk...")
         self._store.persist_to_disk(self.persist_fref)
         return

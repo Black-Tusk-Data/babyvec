@@ -2,10 +2,27 @@
 
 import itertools
 import json
+import logging
 import os
 import time
 
 from babyvec import BabyVecLocalEmbedder
+
+
+def setup_logging():
+    LOG_FMT = (
+        f"%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s"
+    )
+
+    logging.basicConfig(
+        level=getattr(logging, os.environ.get("LOG_LEVEL", "INFO")),
+        format=LOG_FMT,
+        datefmt="%Y-%m-%dT%H:%M:%S%z",
+    )
+    return
+
+
+setup_logging()
 
 
 def load_fragments():
@@ -18,18 +35,18 @@ def load_fragments():
         with open(fname, "r") as f:
             contents = json.loads(f.read())
             for chunk in contents["transcription"]:
-                yield chunk["text"]
+                yield chunk["text"].strip()
         t1 = time.time()
         rate = round((i + 1) / (t1 - t0), 2)
-        print(f"completed {i} rate: {rate} / s")
+        logging.info("completed %d at rate %f", i, rate)
     return
 
 
 
 def main():
-    CHUNK_SIZE = 1000
+    CHUNK_SIZE = 100
     with BabyVecLocalEmbedder(
-        persist_path="./db.sq3",
+        persist_path="./persist/dummy",
         embedding_size=768,
         model="jinaai/jina-embeddings-v2-base-en",
         device="mps",

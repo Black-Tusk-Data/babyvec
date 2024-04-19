@@ -2,7 +2,7 @@ from enum import StrEnum
 from transformers import AutoModel
 
 from babyvec.abstract_embedder import AbstractEmbedder
-from babyvec.embedding_store import EmbeddingStore
+from babyvec.abstract_embedding_store import AbstractEmbeddingStore
 from babyvec.models import Embedding
 
 
@@ -14,7 +14,7 @@ class LocalEmbedder(AbstractEmbedder):
     def __init__(
             self,
             *,
-            store: EmbeddingStore,
+            store: AbstractEmbeddingStore,
             model: str,
             device: str | None = None
     ):
@@ -29,4 +29,4 @@ class LocalEmbedder(AbstractEmbedder):
 
     def _compute_embeddings(self, texts: list[str]) -> list[Embedding]:
         kwargs = {"device": self.device} if self.device else {}
-        return self.embedding_model.encode(texts, **kwargs).tolist()
+        return self.embedding_model.encode(texts, **kwargs)
