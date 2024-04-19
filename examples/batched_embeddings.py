@@ -20,7 +20,7 @@ def load_fragments():
             for chunk in contents["transcription"]:
                 yield chunk["text"]
         t1 = time.time()
-        rate = round(i / (t1 - t0), 2)
+        rate = round((i + 1) / (t1 - t0), 2)
         print(f"completed {i} rate: {rate} / s")
     return
 

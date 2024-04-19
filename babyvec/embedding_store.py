@@ -25,22 +25,16 @@ class EmbeddingStore:
     ):
         self.dbcon = dbcon
         self.dbcon.row_factory = sqlite3.Row
-        self._index_seq = self._query("select max(rowid) rowid from fragment_embed")[0]["rowid"] or 1
-        return
-
-    @contextlib.contextmanager
-    def _cursor(self):
-        try:
-            cursor = self.dbcon.cursor()
-            yield cursor
-        finally:
-            cursor.close()
+        self._index_seq = (self._query("select max(rowid) rowid from fragment_embed")[0]["rowid"] or 0) + 1
         return
 
     def _query(self, *args, **kwargs) -> list[sqlite3.Row]:
-        with self._cursor() as cur:
+        try:
+            cur = self.dbcon.cursor()
             cur.execute(*args, **kwargs)
             return cur.fetchall()
+        finally:
+            cur.close()
         return
 
     def get(self, text: str) -> Embedding | None:
@@ -69,7 +63,7 @@ class EmbeddingStore:
         returns fragment ID
         """
         fragment_id = str(uuid4())
-        with self._cursor() as cur:
+        with self.dbcon:
             # cur.execute("""
             # with text_match as (
             #   select embed_id
@@ -78,7 +72,7 @@ class EmbeddingStore:
             # )  delete from fragment_embed
             #   where rowid in (select embed_id from text_match)
             # """)
-            cur.execute("""
+            self.dbcon.execute("""
             insert into fragment (
               id,
               text,
@@ -94,7 +88,7 @@ class EmbeddingStore:
                 "embed_id": self._index_seq,
             })
 
-            cur.execute("""
+            self.dbcon.execute("""
             insert into fragment_embed (
                   rowid,
                   embedding
@@ -109,7 +103,6 @@ class EmbeddingStore:
             })
 
             self._index_seq += 1
-            self.dbcon.commit()
 
         return fragment_id
 
@@ -125,11 +118,10 @@ class EmbeddingStore:
         mem_db = init_in_mem_db()
         with open(schema_file, "r") as f:
             schema_template = Template(f.read())
-            cur = mem_db.cursor()
-            cur.executescript(schema_template.substitute({
-                "EMBEDDING_SIZE": embedding_size,
-            }))
-            cur.close()
+            with mem_db:
+                mem_db.executescript(schema_template.substitute({
+                    "EMBEDDING_SIZE": embedding_size,
+                }))
         return EmbeddingStore(mem_db)
 
     @staticmethod
