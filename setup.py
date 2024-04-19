@@ -10,12 +10,12 @@ requirements = [
     "transformers",
 ]
 
-setup(name='pjobq',
+setup(name='babyvec',
       version='v0.1.0',
       description='Natural language embedding tools',
       author='Liam Tengelis',
       author_email='liam@blacktuskdata.com',
-      url='https://github.com//vectorspace',
+      url='https://github.com/lummm/babyvec',
       packages=find_packages(),
       package_data={
           '': ['*.yaml'],
