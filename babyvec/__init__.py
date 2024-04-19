@@ -1,1 +1,1 @@
-from .interface import BabyVecLocalEmbedder
+from .interface import *
