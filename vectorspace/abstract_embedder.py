@@ -7,6 +7,7 @@ from vectorspace.models import Embedding
 class AbstractEmbedder(abc.ABC):
     def __init__(
             self,
+            *,
             store: EmbeddingStore,
     ):
         self.store = store
