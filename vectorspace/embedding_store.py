@@ -117,7 +117,6 @@ class EmbeddingStore:
     def initialize(
             *,
             embedding_size: int,
-            storage_path: FileRef,
     ) -> "EmbeddingStore":
         schema_file = os.path.join(
             FileRef.parse(__file__).absdir,

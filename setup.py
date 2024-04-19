@@ -6,6 +6,8 @@ from setuptools import find_packages, setup
 requirements = [
     "numpy",
     "sqlite_vss",
+    "torch",
+    "transformers",
 ]
 
 setup(name='pjobq',

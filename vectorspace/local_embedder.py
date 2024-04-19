@@ -1,8 +1,13 @@
+from enum import StrEnum
 from transformers import AutoModel
 
 from vectorspace.abstract_embedder import AbstractEmbedder
 from vectorspace.embedding_store import EmbeddingStore
 from vectorspace.models import Embedding
+
+
+class LocalEmbedModel(StrEnum):
+    JINA_AI_V2 = "jinaai/jina-embeddings-v2-base-en"
 
 
 class LocalEmbedder(AbstractEmbedder):
@@ -24,4 +29,4 @@ class LocalEmbedder(AbstractEmbedder):
 
     def _compute_embeddings(self, texts: list[str]) -> list[Embedding]:
         kwargs = {"device": self.device} if self.device else {}
-        return self.embedding_model.encode(texts, **kwargs)
+        return self.embedding_model.encode(texts, **kwargs).tolist()
