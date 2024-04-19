@@ -3,6 +3,7 @@
 import itertools
 import json
 import os
+import time
 
 from babyvec import BabyVecLocalEmbedder
 
@@ -12,12 +13,15 @@ def load_fragments():
         os.path.join("./transcribed", fname)
         for fname in os.listdir("./transcribed")
     ]
-    for fname in files:
+    t0 = time.time()
+    for i, fname in enumerate(files):
         with open(fname, "r") as f:
             contents = json.loads(f.read())
             for chunk in contents["transcription"]:
                 yield chunk["text"]
-        print("finished", fname)
+        t1 = time.time()
+        rate = round(i / (t1 - t0), 2)
+        print(f"completed {i} rate: {rate} / s")
     return
 
 
