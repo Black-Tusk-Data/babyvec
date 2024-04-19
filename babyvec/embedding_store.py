@@ -7,8 +7,8 @@ from uuid import uuid4
 
 import sqlite_vss
 
-from vectorspace.common import FileRef
-from vectorspace.models import Embedding
+from babyvec.common import FileRef
+from babyvec.models import Embedding
 
 
 def init_in_mem_db() -> sqlite3.Connection:

@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
+import os
 from setuptools import find_packages, setup
 
+lib_folder = os.path.dirname(os.path.realpath(__file__))
+requirement_path = f"{lib_folder}/requirements.txt"
 
 requirements = [
     "numpy",
@@ -21,6 +24,7 @@ setup(name='babyvec',
           '': ['*.yaml'],
           "pyjobq": ["py.typed"],
       },
+      install_requires=requirements,
       extras_require = {
           "http": [
               "uvicorn",

@@ -1,9 +1,9 @@
 from enum import StrEnum
 from transformers import AutoModel
 
-from vectorspace.abstract_embedder import AbstractEmbedder
-from vectorspace.embedding_store import EmbeddingStore
-from vectorspace.models import Embedding
+from babyvec.abstract_embedder import AbstractEmbedder
+from babyvec.embedding_store import EmbeddingStore
+from babyvec.models import Embedding
 
 
 class LocalEmbedModel(StrEnum):

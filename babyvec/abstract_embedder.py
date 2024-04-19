@@ -1,7 +1,7 @@
 import abc
 
-from vectorspace.embedding_store import EmbeddingStore
-from vectorspace.models import Embedding
+from babyvec.embedding_store import EmbeddingStore
+from babyvec.models import Embedding
 
 
 class AbstractEmbedder(abc.ABC):
