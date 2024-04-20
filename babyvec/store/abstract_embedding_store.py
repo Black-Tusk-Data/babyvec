@@ -37,10 +37,10 @@ class AbstractEmbeddingStore(abc.ABC):
     def initialize(
             *,
             embedding_size: int,
-    ) -> "EmbeddingStore":
+    ) -> "AbstractEmbeddingStore":
         pass
 
     @staticmethod
     @abc.abstractmethod
-    def load_from_disk(storage_path: FileRef) -> "EmbeddingStore":
+    def load_from_disk(storage_path: FileRef) -> "AbstractEmbeddingStore":
         pass
