@@ -1,6 +1,14 @@
+import argparse
 import dataclasses as dc
-from urllib.parse import quote_plus
+import logging
 import os
+from typing import (
+    Callable,
+    NamedTuple,
+    Type,
+    TypeVar,
+)
+from urllib.parse import quote_plus
 
 
 @dc.dataclass
@@ -31,3 +39,50 @@ class FileRef:
             absdir=absdir,
             ext=ext,
         )
+
+
+BaseArgs = NamedTuple
+T = TypeVar("T", bound=BaseArgs)
+
+def make_cli_arg_parser(
+    *,
+    name: str,
+    desc: str,
+    args_shape: Type[T],
+) -> Callable[[], T]:
+    type_map = args_shape.__annotations__
+    defaults = args_shape._field_defaults
+
+    parser = argparse.ArgumentParser(
+        prog=name,
+        description=desc,
+    )
+    for name, dtype in type_map.items():
+        cli_argname = name.replace("_", "-")
+        kwargs = {
+            "dest": name,
+            "required": name not in defaults,
+            "type": dtype,
+        }
+        if name in defaults:
+            kwargs["default"] = defaults[name]
+        parser.add_argument(f"--{cli_argname}", **kwargs)
+
+    def parse_args():
+        args = parser.parse_args()
+        return args_shape(**{k: v for k, v in vars(args).items() if v})
+
+    return parse_args
+
+
+def setup_logging():
+    LOG_FMT = (
+        f"%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s"
+    )
+
+    logging.basicConfig(
+        level=getattr(logging, os.environ.get("LOG_LEVEL", "INFO")),
+        format=LOG_FMT,
+        datefmt="%Y-%m-%dT%H:%M:%S%z",
+    )
+    return

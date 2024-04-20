@@ -29,6 +29,7 @@ setup(name='babyvec',
           "http": [
               "uvicorn",
               "fastapi",
+              "pydantic",
           ],
       },
 )

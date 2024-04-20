@@ -38,10 +38,14 @@ class BabyVecLocalEmbedder:
     def get_embeddings(self, texts: list[str]) -> list[Embedding]:
         return self._embedder.get_embeddings(texts)
 
+    def close(self):
+        logging.info("writing to disk...")
+        self._store.persist_to_disk(self.persist_fref)
+        return
+
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        logging.info("writing to disk...")
-        self._store.persist_to_disk(self.persist_fref)
+        self.close()
         return
