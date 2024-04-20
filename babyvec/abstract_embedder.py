@@ -30,6 +30,9 @@ class AbstractEmbedder(abc.ABC):
             for i, text in enumerate(texts) if cached[i] is None
         }
         logging.debug("found %d cached embeddings", len(cached) - len(to_compute))
+        if not to_compute:
+            return cached
+
         to_compute_uniq = list(set(to_compute.keys()))
         t0 = time.time()
         new_embeddings = self._compute_embeddings(to_compute_uniq)

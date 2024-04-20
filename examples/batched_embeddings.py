@@ -44,15 +44,16 @@ def load_fragments():
 
 
 def main():
-    CHUNK_SIZE = 100
+    CHUNK_SIZE = 1000
     with BabyVecLocalEmbedder(
-        persist_path="./persist/dummy",
+        persist_path="./persist/embeds.dat",
         embedding_size=768,
         model="jinaai/jina-embeddings-v2-base-en",
         device="mps",
     ) as bv:
         for texts in itertools.batched(load_fragments(), CHUNK_SIZE):
             bv.get_embeddings(list(texts))
+            bv._store.persist_to_disk(bv.persist_fref)
     return
 
 

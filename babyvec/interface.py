@@ -21,9 +21,13 @@ class BabyVecLocalEmbedder:
             logging.debug("no persistent record found...")
             EmbeddingStoreNumpy.initialize(
                 embedding_size=embedding_size,
+                embed_table_fref=self.persist_fref,
             ).persist_to_disk(self.persist_fref)
 
-        self._store = EmbeddingStoreNumpy.load_from_disk(storage_path=self.persist_fref)
+        self._store = EmbeddingStoreNumpy.load_from_disk(
+            embedding_size=embedding_size,
+            embed_table_fref=self.persist_fref,
+        )
         self._embedder = LocalEmbedder(
             store=self._store,
             model=model,
