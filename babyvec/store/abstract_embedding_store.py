@@ -24,23 +24,23 @@ class AbstractEmbeddingStore(abc.ABC):
     def get(self, text: str) -> Embedding | None:
         pass
 
-    @abc.abstractmethod
-    def persist_to_disk(self, storage_path: FileRef):
-        pass
+    # @abc.abstractmethod
+    # def persist_to_disk(self, storage_path: FileRef):
+    #     pass
 
     @abc.abstractmethod
     def put(self, text: str, embedding: Embedding) -> None:
         pass
 
-    @staticmethod
-    @abc.abstractmethod
-    def initialize(
-            *,
-            embedding_size: int,
-    ) -> "AbstractEmbeddingStore":
-        pass
+    # @staticmethod
+    # @abc.abstractmethod
+    # def initialize(
+    #         *,
+    #         embedding_size: int,
+    # ) -> "AbstractEmbeddingStore":
+    #     pass
 
-    @staticmethod
-    @abc.abstractmethod
-    def load_from_disk(storage_path: FileRef) -> "AbstractEmbeddingStore":
-        pass
+    # @staticmethod
+    # @abc.abstractmethod
+    # def load_from_disk(storage_path: FileRef) -> "AbstractEmbeddingStore":
+    #     pass

@@ -16,8 +16,11 @@ EMBED_TABLE_FNAME = "embed-table.npy"
 class EmbeddingStoreNumpy(AbstractEmbeddingStore):
     def __init__(
             self,
+            *,
             persist_dir: str
     ):
+        if not os.path.exists(persist_dir):
+            os.makedirs(persist_dir)
         self.text_map_path = os.path.join(
             persist_dir,
             TEXT_MAP_FNAME,
@@ -28,8 +31,8 @@ class EmbeddingStoreNumpy(AbstractEmbeddingStore):
         )
         self.text_map = shelve.open(self.text_map_path)
         self.embed_table: npt.ArrayLike
-        if os.path.exists(embed_table_path):
-            self.embed_table = np.load(embed_table_path, mmap_mode="r")
+        if os.path.exists(self.embed_table_path):
+            self.embed_table = np.load(self.embed_table_path, mmap_mode="r")
         else:
             self.embed_table = np.array([])
         return
@@ -46,18 +49,26 @@ class EmbeddingStoreNumpy(AbstractEmbeddingStore):
 
     def put_many(self, texts: list[str], embeddings: list[Embedding]) -> None:
         assert len(texts) == len(embeddings)
+        if not texts:
+            return
         existing = [
             self.text_map.get(text)
             for text in texts
         ]
 
         insert_offset = len(self.embed_table)
+
+        missing_indices = [
+            i for i in range(len(existing)) if existing[i] is None
+        ]
         new_texts: list[str] = []
-        new_embeddings: list[Embedding] = []
-        for i in range(len(texts)):
-            if existing[i] is None:
-                new_texts.append(texts[i])
-                new_embeddings.append(embeddings[i])
+        new_embeddings = np.empty((
+            len(missing_indices),
+            len(embeddings[0]),
+        ))
+        for i, idx in enumerate(missing_indices):
+            new_texts.append(texts[idx])
+            new_embeddings[i] = embeddings[idx]
 
         # Note!  We do not support adjusting an existing embedding!
         # If we want to do this, need to look at loading the mmap in write mode.
