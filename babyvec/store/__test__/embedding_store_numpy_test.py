@@ -59,3 +59,20 @@ class EmbeddingStoreNumpy_Test(TestCase):
                 embed,
             )
         return
+
+    def test_persistence(self):
+        embeds = [
+            np.random.random(EMBED_LENGTH)
+            for _ in range(100)
+        ]
+        store1 = EmbeddingStoreNumpy(persist_dir=PERSIST_DIR)
+        for i, embed in enumerate(embeds):
+            store1.put(f"test-{i}", embed)
+
+        store2 = EmbeddingStoreNumpy(persist_dir=PERSIST_DIR)
+        for i, embed in enumerate(embeds):
+            np.testing.assert_array_equal(
+                store2.get(f"test-{i}"),
+                embed,
+            )
+        return
