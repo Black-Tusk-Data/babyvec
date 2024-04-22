@@ -6,7 +6,7 @@ import logging
 import os
 import time
 
-from babyvec import BabyVecLocalEmbedder
+from babyvec import CachedEmbedProviderJina
 
 
 def setup_logging():
@@ -45,15 +45,12 @@ def load_fragments():
 
 def main():
     CHUNK_SIZE = 1000
-    with BabyVecLocalEmbedder(
-        persist_path="./persist/embeds.dat",
-        embedding_size=768,
-        model="jinaai/jina-embeddings-v2-base-en",
+    embedder = CachedEmbedProviderJina(
+        persist_dir="./persist",
         device="mps",
-    ) as bv:
-        for texts in itertools.batched(load_fragments(), CHUNK_SIZE):
-            bv.get_embeddings(list(texts))
-            bv._store.persist_to_disk(bv.persist_fref)
+    )
+    for texts in itertools.batched(load_fragments(), CHUNK_SIZE):
+        embedder.get_embeddings(list(texts))
     return
 
 

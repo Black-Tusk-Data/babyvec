@@ -6,7 +6,7 @@ from babyvec.models import Embedding
 DEFAULT_MODEL_NAME = "jinaai/jina-embeddings-v2-base-en"
 
 
-class EmbedingComputerJinaBert(AbstractEmbeddingComputer):
+class EmbeddingComputerJinaBert(AbstractEmbeddingComputer):
     def __init__(
             self,
             model_name: str = DEFAULT_MODEL_NAME,
@@ -20,7 +20,7 @@ class EmbedingComputerJinaBert(AbstractEmbeddingComputer):
         )
         return
     
-    def compute_embedings(self, texts: list[str]) -> list[Embedding]:
+    def compute_embeddings(self, texts: list[str]) -> list[Embedding]:
         return self.model.encode(
             texts,
             device=self.device,

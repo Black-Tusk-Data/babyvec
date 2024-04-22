@@ -2,11 +2,24 @@ import abc
 import logging
 import time
 
+from babyvec.computer.embedding_computer_jina_bert import EmbeddingComputerJinaBert
 from babyvec.embed_provider.abstract_embed_provider import AbstractEmbedProvider
 from babyvec.models import Embedding
+from babyvec.store.embedding_store_numpy import EmbeddingStoreNumpy
 
 
-class CachedEmbedProvider(AbstractEmbedProvider):
+class CachedEmbedProviderJina(AbstractEmbedProvider):
+    def __init__(
+            self,
+            *,
+            persist_dir: str,
+            device: str,
+
+    ) -> None:
+        self.computer = EmbeddingComputerJinaBert(device=device)
+        self.store = EmbeddingStoreNumpy(persist_dir=persist_dir)
+        return
+
     def get_embeddings(self, texts: list[str]) -> list[Embedding]:
         cached = [
             self.store.get(text)
@@ -22,7 +35,7 @@ class CachedEmbedProvider(AbstractEmbedProvider):
 
         to_compute_uniq = list(set(to_compute.keys()))
         t0 = time.time()
-        new_embeddings = self._compute_embeddings(to_compute_uniq)
+        new_embeddings = self.computer.compute_embeddings(to_compute_uniq)
         t1 = time.time()
         logging.debug(
             "computed %d embeddings in %d s",
