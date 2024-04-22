@@ -44,13 +44,18 @@ def load_fragments():
 
 
 def main():
-    CHUNK_SIZE = 1000
+    # CHUNK_SIZE = 1000
+    CHUNK_SIZE = 10
     embedder = CachedEmbedProviderJina(
         persist_dir="./persist",
         device="mps",
+        n_computers=2,
     )
     for texts in itertools.batched(load_fragments(), CHUNK_SIZE):
-        embedder.get_embeddings(list(texts))
+        embs = embedder.get_embeddings(list(texts))
+        embedder.shutdown()
+        return
+
     return
 
 
