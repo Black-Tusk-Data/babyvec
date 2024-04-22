@@ -39,3 +39,23 @@ class EmbeddingStoreNumpy_Test(TestCase):
             store.get("another"),
         )
         return
+
+    def test_multiple_put(self):
+        store = EmbeddingStoreNumpy(persist_dir=PERSIST_DIR)
+        embeds = [
+            np.random.random(EMBED_LENGTH)
+            for i in range(1000)
+        ]
+        for i in range(0, len(embeds), 100):
+            chunk = embeds[i:i+100]
+            store.put_many(
+                [f"thing-{i + k}" for k in range(len(chunk))],
+                chunk,
+            )
+
+        for i, embed in enumerate(embeds):
+            np.testing.assert_array_equal(
+                store.get(f"thing-{i}"),
+                embed,
+            )
+        return
