@@ -74,12 +74,18 @@ class CachedEmbedProviderJina(AbstractEmbedProvider):
         for con, chunk in zip(self.computer_connections, chunks):
             n_chunk = len(chunk)
             arr_buffer = con.recv_bytes()
-            flattened = np.frombuffer(arr_buffer)
+            flattened = np.frombuffer(arr_buffer, dtype=np.float32)
             embeddings = flattened.reshape((n_chunk, -1))
             for i in range(n_chunk):
                 res.append(embeddings[i])
         return res
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.shutdown()
+        return
 
     def shutdown(self):
         for con in self.computer_connections:

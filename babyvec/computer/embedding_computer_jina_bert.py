@@ -1,3 +1,4 @@
+import logging
 from transformers import AutoModel
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
 from babyvec.models import Embedding
@@ -19,9 +20,9 @@ class EmbeddingComputerJinaBert(AbstractEmbeddingComputer):
             trust_remote_code=True,
         )
         return
-    
+
     def compute_embeddings(self, texts: list[str]) -> list[Embedding]:
         return self.model.encode(
             texts,
             device=self.device,
-        )
+        )                       # float32
