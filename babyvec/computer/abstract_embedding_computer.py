@@ -1,12 +1,14 @@
 import abc
-import logging
 import time
 
-from babyvec.models import Embedding
+from babyvec.models import EmbedComputeOptions, Embedding
 
 
 class AbstractEmbeddingComputer(abc.ABC):
+    def __init__(self, compute_options: EmbedComputeOptions):
+        self.compute_options = compute_options
+        return
+
     @abc.abstractmethod
     def compute_embeddings(self, texts: list[str]) -> list[Embedding]:
         pass
-

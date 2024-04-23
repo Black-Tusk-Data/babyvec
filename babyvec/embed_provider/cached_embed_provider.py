@@ -14,11 +14,9 @@ class CachedEmbedProvider(AbstractEmbedProvider):
             *,
             computer: AbstractEmbeddingComputer,
             store: AbstractEmbeddingStore | None = None,
-            # compute_options: EmbedComputeOptions,
     ):
         self.store = store
         self.computer = computer
-        # self.compute_options = compute_options
         return
 
     def get_embeddings(self, texts: list[str]) -> list[Embedding]:

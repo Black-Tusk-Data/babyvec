@@ -4,13 +4,12 @@ import logging
 from multiprocessing import Process, Pipe
 from multiprocessing.connection import Connection
 import time
+from typing import Type
 
 import numpy as np
 
-from babyvec.computer.embedding_computer_jina_bert import EmbeddingComputerJinaBert
-from babyvec.embed_provider.abstract_embed_provider import AbstractEmbedProvider
-from babyvec.models import Embedding
-from babyvec.store.embedding_store_numpy import EmbeddingStoreNumpy
+from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
+from babyvec.models import EmbedComputeOptions, Embedding
 
 
 KILL_COMMAND = b"STOP"
@@ -18,10 +17,11 @@ KILL_COMMAND = b"STOP"
 
 def worker_process(
         i: int,
-        device: str,
         child_con: Connection,
+        computer_type: Type[AbstractEmbeddingComputer],
+        compute_options: EmbedComputeOptions,
 ):
-    computer = EmbeddingComputerJinaBert(device=device)
+    computer = computer_type(compute_options)
     logging.debug("worker %d coming online...", i)
     while True:
         cmd = child_con.recv_bytes()
@@ -35,31 +35,28 @@ def worker_process(
     return
 
 
-class CachedEmbedProviderJina(AbstractEmbedProvider):
+class ParallelizedEmbeddingComputer(AbstractEmbeddingComputer):
     def __init__(
             self,
-            *,
-            persist_dir: str,
-            device: str,
-            n_computers: int = 1,
-    ) -> None:
+            compute_options: EmbedComputeOptions,
+            computer_type: Type[AbstractEmbeddingComputer],
+    ):
+        super().__init__(compute_options)
         self.computer_processes = []
         self.computer_connections = []
+        self.computer_type = computer_type
 
-        for i in range(n_computers):
+        for i in range(self.compute_options.n_computers):
             parent_con, child_con = Pipe()
             self.computer_connections.append(parent_con)
             self.computer_processes.append(Process(
                 target=worker_process,
-                args=(i, device, child_con),
+                args=(i, child_con, computer_type, compute_options),
             ))
             self.computer_processes[-1].start()
-
-        self.computer = EmbeddingComputerJinaBert(device=device)
-        self.store = EmbeddingStoreNumpy(persist_dir=persist_dir)
         return
 
-    def _compute_embeddings(self, texts: list[str]) -> list[Embedding]:
+    def compute_embeddings(self, texts: list[str]) -> list[Embedding]:
         n = len(texts)
         chunk_size = n // len(self.computer_connections)
         chunks = [
@@ -78,7 +75,7 @@ class CachedEmbedProviderJina(AbstractEmbedProvider):
             embeddings = flattened.reshape((n_chunk, -1))
             for i in range(n_chunk):
                 res.append(embeddings[i])
-        return res
+        return
 
     def __enter__(self):
         return self

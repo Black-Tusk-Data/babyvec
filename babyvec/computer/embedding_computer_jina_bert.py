@@ -1,7 +1,7 @@
 import logging
 from transformers import AutoModel
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
-from babyvec.models import Embedding
+from babyvec.models import EmbedComputeOptions, Embedding
 
 
 DEFAULT_MODEL_NAME = "jinaai/jina-embeddings-v2-base-en"
@@ -10,11 +10,11 @@ DEFAULT_MODEL_NAME = "jinaai/jina-embeddings-v2-base-en"
 class EmbeddingComputerJinaBert(AbstractEmbeddingComputer):
     def __init__(
             self,
+            compute_options: EmbedComputeOptions,
             model_name: str = DEFAULT_MODEL_NAME,
-            device: str = "cpu",
     ):
+        super().__init__(compute_options)
         self.model_name = model_name
-        self.device = device
         self.model = AutoModel.from_pretrained(
             model_name,
             trust_remote_code=True,
@@ -24,5 +24,5 @@ class EmbeddingComputerJinaBert(AbstractEmbeddingComputer):
     def compute_embeddings(self, texts: list[str]) -> list[Embedding]:
         return self.model.encode(
             texts,
-            device=self.device,
-        )                       # float32
+            device=self.compute_options.device,
+        ) # float32
