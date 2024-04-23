@@ -3,3 +3,6 @@ venv/
 
 build/
 babyvec.egg-info/
+
+examples/transcribed/
+examples/transcribed.zip
