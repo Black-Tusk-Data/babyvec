@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python -m unittest babyvec/**/*_test.py
+find ./babyvec -name '*_test.py' | xargs python -m unittest

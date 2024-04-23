@@ -11,4 +11,3 @@ Embedding = npt.ArrayLike
 
 class EmbedComputeOptions(NamedTuple):
     device: str
-    n_computers: int

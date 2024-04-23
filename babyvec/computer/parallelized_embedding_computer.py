@@ -38,6 +38,7 @@ def worker_process(
 class ParallelizedEmbeddingComputer(AbstractEmbeddingComputer):
     def __init__(
             self,
+            n_computers: int,
             compute_options: EmbedComputeOptions,
             computer_type: Type[AbstractEmbeddingComputer],
     ):
@@ -46,7 +47,7 @@ class ParallelizedEmbeddingComputer(AbstractEmbeddingComputer):
         self.computer_connections = []
         self.computer_type = computer_type
 
-        for i in range(self.compute_options.n_computers):
+        for i in range(n_computers):
             parent_con, child_con = Pipe()
             self.computer_connections.append(parent_con)
             self.computer_processes.append(Process(
@@ -75,7 +76,7 @@ class ParallelizedEmbeddingComputer(AbstractEmbeddingComputer):
             embeddings = flattened.reshape((n_chunk, -1))
             for i in range(n_chunk):
                 res.append(embeddings[i])
-        return
+        return res
 
     def __enter__(self):
         return self
