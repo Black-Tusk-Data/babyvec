@@ -59,7 +59,7 @@ class ParallelizedEmbeddingComputer(AbstractEmbeddingComputer):
 
     def compute_embeddings(self, texts: list[str]) -> list[Embedding]:
         n = len(texts)
-        chunk_size = n // len(self.computer_connections)
+        chunk_size = max(n // len(self.computer_connections), 1)
         chunks = [
             texts[i:i+chunk_size]
             for i in range(0, n, chunk_size)

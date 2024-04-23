@@ -6,7 +6,7 @@ import logging
 import os
 import time
 
-from babyvec import CachedEmbedProviderJina
+from babyvec import CachedParallelJinaEmbedder
 
 
 def setup_logging():
@@ -44,18 +44,15 @@ def load_fragments():
 
 
 def main():
-    # CHUNK_SIZE = 1000
-    CHUNK_SIZE = 10
-    embedder = CachedEmbedProviderJina(
+    N_COMPUTERS = 3
+    CHUNK_SIZE = 100 * N_COMPUTERS
+    with CachedParallelJinaEmbedder(
         persist_dir="./persist",
         device="mps",
-        n_computers=2,
-    )
-    for texts in itertools.batched(load_fragments(), CHUNK_SIZE):
-        embs = embedder.get_embeddings(list(texts))
-        embedder.shutdown()
-        return
-
+        n_computers=N_COMPUTERS,
+    ) as embedder:
+        for texts in itertools.batched(load_fragments(), CHUNK_SIZE):
+            embs = embedder.get_embeddings(list(texts))
     return
 
 

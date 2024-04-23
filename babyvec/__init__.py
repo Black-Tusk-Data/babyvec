@@ -17,7 +17,7 @@ class CachedParallelJinaEmbedder(ParallelizedCachedEmbedProvider):
         store = EmbeddingStoreNumpy(persist_dir=persist_dir)
         super().__init__(
             n_computers=n_computers,
-            compute_opttions=EmbedComputeOptions(
+            compute_options=EmbedComputeOptions(
                 device=device,
             ),
             computer_type=EmbeddingComputerJinaBert,

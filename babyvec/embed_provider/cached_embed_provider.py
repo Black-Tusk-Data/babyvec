@@ -46,7 +46,7 @@ class CachedEmbedProvider(AbstractEmbedProvider):
 
         t1 = time.time()
         logging.debug(
-            "computed %d embeddings in %d s",
+            "computed %d embeddings in %f s",
             len(to_compute_uniq),
             round(t1 - t0, 2)
         )
@@ -59,7 +59,7 @@ class CachedEmbedProvider(AbstractEmbedProvider):
         if self.store:
             t2 = time.time()
             logging.debug(
-                "stored %d embeddings in %d s",
+                "stored %d embeddings in %f s",
                 len(to_compute_uniq),
                 round(t2 - t1, 2)
             )

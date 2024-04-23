@@ -8,7 +8,7 @@ from ..embedding_store_numpy import EmbeddingStoreNumpy
 
 np.random.seed(11)
 
-PERSIST_DIR = "./.tmp"
+PERSIST_DIR = "/tmp/.tmp-store-test"
 EMBED_LENGTH = 123
 
 embeddings = {
