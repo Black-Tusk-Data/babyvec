@@ -1,6 +1,4 @@
 import abc
-import logging
-import time
 
 from babyvec.models import Embedding
 
