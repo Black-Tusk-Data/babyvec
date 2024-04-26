@@ -1,6 +1,4 @@
 from babyvec.computer.embedding_computer_jina_bert import EmbeddingComputerJinaBert
-from babyvec.computer.parallelized_embedding_computer import ParallelizedEmbeddingComputer
-from babyvec.embed_provider.cached_embed_provider import CachedEmbedProvider
 from babyvec.embed_provider.parallelized_cached_embed_provider import ParallelizedCachedEmbedProvider
 from babyvec.models import *
 from babyvec.store.embedding_store_numpy import EmbeddingStoreNumpy
