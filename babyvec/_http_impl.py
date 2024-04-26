@@ -6,11 +6,11 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from babyvec.common import setup_logging
-from babyvec.interface import BabyVecLocalEmbedder
+from babyvec._packaged_providers import CachedParallelJinaEmbedder
 
 
 class Services(SimpleNamespace):
-    embedder: BabyVecLocalEmbedder
+    embedder: CachedParallelJinaEmbedder
 
 
 setup_logging()
@@ -24,11 +24,10 @@ class GetEmbeddingsInput(BaseModel):
 
 def init_app():
     logging.info("starting babyvec server...")
-    services.embedder = BabyVecLocalEmbedder(
-        persist_path="./persist/embeds/dat",
-        embedding_size=768,
-        model="jinaai/jina-embeddings-v2-base-en",
-        device="mps",
+    services.embedder = CachedParallelJinaEmbedder(
+        persist_dir=".babyvec",
+        n_computers=1,
+        device="cpu",
     )
     logging.info("initialized successfully!")
     return
@@ -38,7 +37,7 @@ async def lifespan(app):
     init_app()
     yield
     logging.info("shutting down babyvec server...")
-    services.embedder.close()
+    services.embedder.shutdown()
     return
 
 app = FastAPI(lifespan=lifespan)
@@ -50,10 +49,3 @@ def get_embeddings(body: GetEmbeddingsInput):
         embed.tolist()
         for embed in embeddings
     ]
-
-
-#     return app
-
-
-# def main():
-#     return

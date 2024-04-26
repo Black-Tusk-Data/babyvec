@@ -13,6 +13,7 @@ class EmbeddingComputerJinaBert(AbstractEmbeddingComputer):
             compute_options: EmbedComputeOptions,
             model_name: str = DEFAULT_MODEL_NAME,
     ):
+        logging.info("JinaBert embedding computer coming online, with options: %s", compute_options)
         super().__init__(compute_options)
         self.model_name = model_name
         self.model = AutoModel.from_pretrained(

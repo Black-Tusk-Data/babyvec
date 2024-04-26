@@ -29,9 +29,13 @@ class ParallelizedCachedEmbedProvider(CachedEmbedProvider):
         super().__init__(computer=computer, store=store)
         return
 
+    def shutdown(self):
+        self.computer.shutdown()
+        return
+
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.computer.shutdown()
+        self.shutdown()
         return
