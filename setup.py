@@ -7,8 +7,9 @@ lib_folder = os.path.dirname(os.path.realpath(__file__))
 requirement_path = f"{lib_folder}/requirements.txt"
 
 requirements = [
+    "faiss-cpu",
+    "npy_append_array",
     "numpy",
-    "sqlite_vss",
     "torch",
     "transformers",
 ]

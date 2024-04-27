@@ -82,6 +82,7 @@ class ParallelizedEmbeddingComputer(AbstractEmbeddingComputer):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        logging.info("shutdown")
         self.shutdown()
         return
 
