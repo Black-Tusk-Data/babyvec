@@ -2,7 +2,7 @@ import os
 import pickle
 import shelve
 
-from babyvec.models import Embedding
+from babyvec.models import Embedding, EmbeddingId
 from babyvec.store.abstract_embedding_store import AbstractEmbeddingStore
 from npy_append_array import NpyAppendArray
 import numpy as np
@@ -84,3 +84,6 @@ class EmbeddingStoreNumpy(AbstractEmbeddingStore):
         self.text_map.close()
         self.text_map = shelve.open(self.text_map_path)
         return
+
+    def get_text_map(self) -> dict[str, EmbeddingId]:
+        return dict(self.text_map)
