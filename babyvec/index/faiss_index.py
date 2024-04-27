@@ -32,11 +32,12 @@ class FaissIndex(AbstractIndex):
         """
         query_embed = self.computer.compute_embeddings([query])
         distances, embedding_ids = self.index.search(np.array(query_embed), k_nearest)
+
         texts = [
             self.embedding_text_lookup[embed_id]
             for embed_id in embedding_ids[0]
         ]
         return [IndexSearchResult(
             text=text,
-            distance=distance,
+            distance=distance.item(),
         ) for text, distance in zip(texts, distances[0])]
