@@ -15,13 +15,8 @@ class NumpyFaissIndexFactory(AbstractIndexFactory):
         return
 
     def build_index(self) -> FaissIndex:
-        embedding_text_lookup = {
-            embed_id: text
-            for text, embed_id in self.store.get_text_map().items()
-        }
         store: EmbeddingStoreNumpy = self.store
         return FaissIndex(
-            embedding_text_lookup=embedding_text_lookup,
             computer=self.computer,
             vectors=store.embed_table,
         )
