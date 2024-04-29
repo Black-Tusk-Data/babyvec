@@ -37,12 +37,24 @@ class EmbeddingStoreNumpy(AbstractEmbeddingStore):
             return None
         return self.embed_table[embed_id]
 
-    def put(self, text: str, embedding: Embedding) -> None:
-        self.put_many([text], [embedding])
+    def put(self, *, text: str, embedding: Embedding, metadata: dict | None = None) -> None:
+        self.put_many(
+            texts=[text],
+            embeddings=[embedding],
+            metadatas=[metadata] if metadata else None,
+        )
         return
 
-    def put_many(self, texts: list[str], embeddings: list[Embedding]) -> None:
+    def put_many(
+            self,
+            *,
+            texts: list[str],
+            embeddings: list[Embedding],
+            metadatas: list[dict] | None = None
+    ) -> None:
         assert len(texts) == len(embeddings)
+        if metadatas:
+            assert len(texts) == len(metadatas)
         if not texts:
             return
         existing_embed_ids = [
@@ -56,22 +68,28 @@ class EmbeddingStoreNumpy(AbstractEmbeddingStore):
             i for i in range(len(existing_embed_ids)) if existing_embed_ids[i] is None
         ]
         new_texts: list[str] = []
+        new_metadatas: list[dict] = []
         new_embeddings = np.empty((
             len(missing_indices),
             len(embeddings[0]),
         ))
         for i, idx in enumerate(missing_indices):
-            new_texts.append(texts[idx])
             new_embeddings[i] = embeddings[idx]
+            new_texts.append(texts[idx])
+            if metadatas:
+                new_metadatas.append(metadatas[idx])
+            else:
+                new_metadatas.append({})
 
         # Note!  We do not support adjusting an existing embedding!
         # If we want to do this, need to look at loading the mmap in write mode.
         with NpyAppendArray(self.embed_table_path, delete_if_exists=False) as npaa:
             npaa.append(new_embeddings)
             for i, text in enumerate(new_texts):
-                self.metadata_store.set_embedding_id(
+                self.metadata_store.add_text(
                     text=text,
-                    embedding_id=insert_offset + i
+                    embedding_id=insert_offset + i,
+                    metadata=new_metadatas[i],
                 )
 
         self.embed_table = np.load(

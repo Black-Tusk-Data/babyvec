@@ -29,5 +29,5 @@ class AbstractEmbeddingStore(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def put(self, text: str, embedding: Embedding) -> None:
+    def put(self, *, text: str, embedding: Embedding, metadata: dict | None = None) -> None:
         pass

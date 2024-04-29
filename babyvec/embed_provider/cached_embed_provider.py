@@ -53,7 +53,7 @@ class CachedEmbedProvider(AbstractEmbedProvider):
 
         for text, embed in zip(to_compute_uniq, new_embeddings):
             if self.store:
-                self.store.put(text, embed)
+                self.store.put(text=text, embedding=embed)
             cache_hits[to_compute[text]] = embed
 
         if self.store:

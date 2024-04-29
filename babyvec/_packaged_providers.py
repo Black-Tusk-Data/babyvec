@@ -48,7 +48,7 @@ class SemanticDb:
         results = []
         for r in index_result:
             results.append(
-                self.metadata_store.get_embedding_metadata(
+                self.metadata_store.get_embedding_text_and_metadata(
                     r.embedding_id
                 )
             )
