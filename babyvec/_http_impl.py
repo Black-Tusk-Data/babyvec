@@ -51,15 +51,11 @@ def build_app(args: HttpServerArgs):
         services.embedder.shutdown()
         return
 
-    app =  FastAPI(lifespan=lifespan)
+    app = FastAPI(lifespan=lifespan)
 
     @app.post("/embeddings")
     def get_embeddings(body: GetEmbeddingsInput):
         embeddings = services.embedder.get_embeddings(body.texts)
-        return [
-            embed.tolist()
-            for embed in embeddings
-        ]
-
+        return [embed.tolist() for embed in embeddings]
 
     return app

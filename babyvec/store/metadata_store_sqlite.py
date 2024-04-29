@@ -52,7 +52,8 @@ class MetadataStoreSQLite(AbstractMetadataStore):
 
     def add_text(self, *, text: str, embedding_id: EmbeddingId, metadata: dict) -> None:
         with self._cursor() as cur:
-            cur.execute("""
+            cur.execute(
+                """
             INSERT INTO fragment (
               embed_id,
               text,
@@ -66,31 +67,38 @@ class MetadataStoreSQLite(AbstractMetadataStore):
             SET embed_id = :embed_id,
                 metadata_json = :metadata_json
           WHERE text = :text
-            """, {
-                "embed_id": embedding_id,
-                "text": text,
-                "metadata_json": json.dumps(metadata),
-            })
+            """,
+                {
+                    "embed_id": embedding_id,
+                    "text": text,
+                    "metadata_json": json.dumps(metadata),
+                },
+            )
         return
 
     def get_embedding_id(self, text: str) -> EmbeddingId | None:
-        rows = self._query("""
+        rows = self._query(
+            """
         select embed_id
           from fragment
          where text = :text
-        """, {"text": text})
+        """,
+            {"text": text},
+        )
         if not rows:
             return None
         return rows[0]["embed_id"]
 
-    def get_embedding_text_and_metadata(self, embedding_id: EmbeddingId) -> tuple[str, dict]:
-        rows = self._query("""
+    def get_embedding_text_and_metadata(
+        self, embedding_id: EmbeddingId
+    ) -> tuple[str, dict]:
+        rows = self._query(
+            """
         select text, metadata_json
           from fragment
          where embed_id = :embed_id
-        """, {"embed_id": embedding_id})
-        assert rows
-        return (
-            rows[0]["text"],
-            json.loads(rows[0]["metadata_json"])
+        """,
+            {"embed_id": embedding_id},
         )
+        assert rows
+        return (rows[0]["text"], json.loads(rows[0]["metadata_json"]))

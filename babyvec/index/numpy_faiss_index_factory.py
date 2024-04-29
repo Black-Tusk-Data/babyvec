@@ -6,10 +6,10 @@ from babyvec.store.embedding_store_numpy import EmbeddingStoreNumpy
 
 class NumpyFaissIndexFactory(AbstractIndexFactory):
     def __init__(
-            self,
-            *,
-            store: EmbeddingStoreNumpy, # TODO: ideally would be a generic in the factory
-            computer: AbstractEmbeddingComputer,
+        self,
+        *,
+        store: EmbeddingStoreNumpy,  # TODO: ideally would be a generic in the factory
+        computer: AbstractEmbeddingComputer,
     ):
         super().__init__(store=store, computer=computer)
         return

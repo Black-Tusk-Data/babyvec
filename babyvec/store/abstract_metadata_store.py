@@ -7,8 +7,8 @@ from babyvec.models import EmbeddingId, PersistenceOptions
 class AbstractMetadataStore(abc.ABC):
 
     def __init__(
-            self,
-            options: PersistenceOptions,
+        self,
+        options: PersistenceOptions,
     ):
         self.options = options
         self.persist_dir = options.persist_dir
@@ -25,5 +25,7 @@ class AbstractMetadataStore(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_embedding_text_and_metadata(self, embedding_id: EmbeddingId) -> tuple[str, dict]:
+    def get_embedding_text_and_metadata(
+        self, embedding_id: EmbeddingId
+    ) -> tuple[str, dict]:
         return

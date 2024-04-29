@@ -13,8 +13,8 @@ class EmbeddingPersistenceOptions(NamedTuple):
 
 class AbstractEmbeddingStore(abc.ABC):
     def __init__(
-            self,
-            options: EmbeddingPersistenceOptions,
+        self,
+        options: EmbeddingPersistenceOptions,
     ):
         self.persist_dir = options.persist_options.persist_dir
         if not os.path.exists(self.persist_dir):
@@ -29,5 +29,7 @@ class AbstractEmbeddingStore(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def put(self, *, text: str, embedding: Embedding, metadata: dict | None = None) -> None:
+    def put(
+        self, *, text: str, embedding: Embedding, metadata: dict | None = None
+    ) -> None:
         pass

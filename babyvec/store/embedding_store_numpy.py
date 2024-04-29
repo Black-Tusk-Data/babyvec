@@ -4,7 +4,10 @@ import shelve
 
 from babyvec.models import Embedding, EmbeddingId
 from babyvec.store.abstract_metadata_store import AbstractMetadataStore
-from babyvec.store.abstract_embedding_store import AbstractEmbeddingStore, EmbeddingPersistenceOptions
+from babyvec.store.abstract_embedding_store import (
+    AbstractEmbeddingStore,
+    EmbeddingPersistenceOptions,
+)
 from npy_append_array import NpyAppendArray
 import numpy as np
 import numpy.typing as npt
@@ -15,8 +18,8 @@ EMBED_TABLE_FNAME = "embed-table.npy"
 
 class EmbeddingStoreNumpy(AbstractEmbeddingStore):
     def __init__(
-            self,
-            options: EmbeddingPersistenceOptions,
+        self,
+        options: EmbeddingPersistenceOptions,
     ):
         super().__init__(options)
         self.embed_table_path = os.path.join(
@@ -37,7 +40,9 @@ class EmbeddingStoreNumpy(AbstractEmbeddingStore):
             return None
         return self.embed_table[embed_id]
 
-    def put(self, *, text: str, embedding: Embedding, metadata: dict | None = None) -> None:
+    def put(
+        self, *, text: str, embedding: Embedding, metadata: dict | None = None
+    ) -> None:
         self.put_many(
             texts=[text],
             embeddings=[embedding],
@@ -46,11 +51,11 @@ class EmbeddingStoreNumpy(AbstractEmbeddingStore):
         return
 
     def put_many(
-            self,
-            *,
-            texts: list[str],
-            embeddings: list[Embedding],
-            metadatas: list[dict] | None = None
+        self,
+        *,
+        texts: list[str],
+        embeddings: list[Embedding],
+        metadatas: list[dict] | None = None
     ) -> None:
         assert len(texts) == len(embeddings)
         if metadatas:
@@ -58,8 +63,7 @@ class EmbeddingStoreNumpy(AbstractEmbeddingStore):
         if not texts:
             return
         existing_embed_ids = [
-            self.metadata_store.get_embedding_id(text)
-            for text in texts
+            self.metadata_store.get_embedding_id(text) for text in texts
         ]
 
         insert_offset = len(self.embed_table)
@@ -69,10 +73,12 @@ class EmbeddingStoreNumpy(AbstractEmbeddingStore):
         ]
         new_texts: list[str] = []
         new_metadatas: list[dict] = []
-        new_embeddings = np.empty((
-            len(missing_indices),
-            len(embeddings[0]),
-        ))
+        new_embeddings = np.empty(
+            (
+                len(missing_indices),
+                len(embeddings[0]),
+            )
+        )
         for i, idx in enumerate(missing_indices):
             new_embeddings[i] = embeddings[idx]
             new_texts.append(texts[idx])

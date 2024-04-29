@@ -16,10 +16,10 @@ KILL_COMMAND = b"STOP"
 
 
 def worker_process(
-        i: int,
-        child_con: Connection,
-        computer_type: Type[AbstractEmbeddingComputer],
-        compute_options: EmbedComputeOptions,
+    i: int,
+    child_con: Connection,
+    computer_type: Type[AbstractEmbeddingComputer],
+    compute_options: EmbedComputeOptions,
 ):
     computer = computer_type(compute_options)
     logging.debug("worker %d coming online...", i)
@@ -37,10 +37,10 @@ def worker_process(
 
 class ParallelizedEmbeddingComputer(AbstractEmbeddingComputer):
     def __init__(
-            self,
-            n_computers: int,
-            compute_options: EmbedComputeOptions,
-            computer_type: Type[AbstractEmbeddingComputer],
+        self,
+        n_computers: int,
+        compute_options: EmbedComputeOptions,
+        computer_type: Type[AbstractEmbeddingComputer],
     ):
         super().__init__(compute_options)
         self.computer_processes = []
@@ -50,20 +50,19 @@ class ParallelizedEmbeddingComputer(AbstractEmbeddingComputer):
         for i in range(n_computers):
             parent_con, child_con = Pipe()
             self.computer_connections.append(parent_con)
-            self.computer_processes.append(Process(
-                target=worker_process,
-                args=(i, child_con, computer_type, compute_options),
-            ))
+            self.computer_processes.append(
+                Process(
+                    target=worker_process,
+                    args=(i, child_con, computer_type, compute_options),
+                )
+            )
             self.computer_processes[-1].start()
         return
 
     def compute_embeddings(self, texts: list[str]) -> list[Embedding]:
         n = len(texts)
         chunk_size = max(n // len(self.computer_connections), 1)
-        chunks = [
-            texts[i:i+chunk_size]
-            for i in range(0, n, chunk_size)
-        ]
+        chunks = [texts[i : i + chunk_size] for i in range(0, n, chunk_size)]
 
         for con, chunk in zip(self.computer_connections, chunks):
             con.send_bytes(json.dumps(chunk).encode("utf-8"))

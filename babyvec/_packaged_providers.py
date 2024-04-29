@@ -1,6 +1,8 @@
 from torch import index_reduce
 from babyvec.computer.embedding_computer_jina_bert import EmbeddingComputerJinaBert
-from babyvec.embed_provider.parallelized_cached_embed_provider import ParallelizedCachedEmbedProvider
+from babyvec.embed_provider.parallelized_cached_embed_provider import (
+    ParallelizedCachedEmbedProvider,
+)
 from babyvec.index.abstract_index import AbstractIndex
 from babyvec.index.numpy_faiss_index_factory import NumpyFaissIndexFactory
 from babyvec.models import *
@@ -13,15 +15,17 @@ from babyvec.store.metadata_store_sqlite import MetadataStoreSQLite
 # 'packaged' providers
 class CachedParallelJinaEmbedder(ParallelizedCachedEmbedProvider):
     def __init__(
-            self,
-            persist_dir: str,
-            n_computers: int,
-            device: str,
+        self,
+        persist_dir: str,
+        n_computers: int,
+        device: str,
     ):
-        store = EmbeddingStoreNumpy(EmbeddingPersistenceOptions(
-            persist_options=PersistenceOptions(persist_dir=persist_dir),
-            metadata_store_type=MetadataStoreSQLite,
-        ))
+        store = EmbeddingStoreNumpy(
+            EmbeddingPersistenceOptions(
+                persist_options=PersistenceOptions(persist_dir=persist_dir),
+                metadata_store_type=MetadataStoreSQLite,
+            )
+        )
         super().__init__(
             n_computers=n_computers,
             compute_options=EmbedComputeOptions(
@@ -34,10 +38,10 @@ class CachedParallelJinaEmbedder(ParallelizedCachedEmbedProvider):
 
 class SemanticDb:
     def __init__(
-            self,
-            *,
-            metadata_store: AbstractMetadataStore,
-            index: AbstractIndex,
+        self,
+        *,
+        metadata_store: AbstractMetadataStore,
+        index: AbstractIndex,
     ):
         self.metadata_store = metadata_store
         self.index = index
@@ -50,30 +54,36 @@ class SemanticDb:
             text, metadata = self.metadata_store.get_embedding_text_and_metadata(
                 r.embedding_id
             )
-            results.append(DbSearchResult(
-                index_search_result=r,
-                text=text,
-                metadata=metadata,
-            ))
+            results.append(
+                DbSearchResult(
+                    index_search_result=r,
+                    text=text,
+                    metadata=metadata,
+                )
+            )
         return results
 
 
 def FaissNumpyJinaSemanticDb(
-        *,
-        persist_dir: str,
-        device: str,
+    *,
+    persist_dir: str,
+    device: str,
 ):
     """
     MAY NEED TO SET:
       export KMP_DUPLICATE_LIB_OK='True'
     """
-    store = EmbeddingStoreNumpy(EmbeddingPersistenceOptions(
-        persist_options=PersistenceOptions(persist_dir=persist_dir),
-        metadata_store_type=MetadataStoreSQLite,
-    ))
-    computer = EmbeddingComputerJinaBert(compute_options=EmbedComputeOptions(
-        device=device,
-    ))
+    store = EmbeddingStoreNumpy(
+        EmbeddingPersistenceOptions(
+            persist_options=PersistenceOptions(persist_dir=persist_dir),
+            metadata_store_type=MetadataStoreSQLite,
+        )
+    )
+    computer = EmbeddingComputerJinaBert(
+        compute_options=EmbedComputeOptions(
+            device=device,
+        )
+    )
 
     index_factory = NumpyFaissIndexFactory(
         store=store,

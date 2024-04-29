@@ -10,10 +10,10 @@ from babyvec.store.abstract_embedding_store import AbstractEmbeddingStore
 
 class CachedEmbedProvider(AbstractEmbedProvider):
     def __init__(
-            self,
-            *,
-            computer: AbstractEmbeddingComputer,
-            store: AbstractEmbeddingStore | None = None,
+        self,
+        *,
+        computer: AbstractEmbeddingComputer,
+        store: AbstractEmbeddingStore | None = None,
     ):
         self.store = store
         self.computer = computer
@@ -22,17 +22,11 @@ class CachedEmbedProvider(AbstractEmbedProvider):
     def get_embeddings(self, texts: list[str]) -> list[Embedding]:
         cache_hits: list[Embedding | None]
         if self.store:
-            cache_hits = [
-                self.store.get(text)
-                for text in texts
-            ]
+            cache_hits = [self.store.get(text) for text in texts]
         else:
             cache_hits = [None] * len(texts)
 
-        to_compute = {
-            text: i
-            for i, text in enumerate(texts) if cache_hits[i] is None
-        }
+        to_compute = {text: i for i, text in enumerate(texts) if cache_hits[i] is None}
 
         logging.debug("found %d cached embeddings", len(cache_hits) - len(to_compute))
 
@@ -46,9 +40,7 @@ class CachedEmbedProvider(AbstractEmbedProvider):
 
         t1 = time.time()
         logging.debug(
-            "computed %d embeddings in %f s",
-            len(to_compute_uniq),
-            round(t1 - t0, 2)
+            "computed %d embeddings in %f s", len(to_compute_uniq), round(t1 - t0, 2)
         )
 
         for text, embed in zip(to_compute_uniq, new_embeddings):
@@ -59,8 +51,6 @@ class CachedEmbedProvider(AbstractEmbedProvider):
         if self.store:
             t2 = time.time()
             logging.debug(
-                "stored %d embeddings in %f s",
-                len(to_compute_uniq),
-                round(t2 - t1, 2)
+                "stored %d embeddings in %f s", len(to_compute_uniq), round(t2 - t1, 2)
             )
         return cache_hits

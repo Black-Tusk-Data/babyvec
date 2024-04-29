@@ -11,9 +11,9 @@ from babyvec.models import IndexSearchResult
 
 class FaissIndex(AbstractIndex):
     def __init__(
-            self,
-            computer: AbstractEmbeddingComputer,
-            vectors: npt.ArrayLike,
+        self,
+        computer: AbstractEmbeddingComputer,
+        vectors: npt.ArrayLike,
     ):
         assert len(vectors.shape) == 2, "expected to add a 2-dimensional tensor"
         self.computer = computer
@@ -30,7 +30,10 @@ class FaissIndex(AbstractIndex):
         query_embed = self.computer.compute_embeddings([query])
         distances, embedding_ids = self.index.search(np.array(query_embed), k_nearest)
 
-        return [IndexSearchResult(
-            embedding_id=embedding_id.item(),
-            distance=distance.item(),
-        ) for embedding_id, distance in zip(embedding_ids[0], distances[0])]
+        return [
+            IndexSearchResult(
+                embedding_id=embedding_id.item(),
+                distance=distance.item(),
+            )
+            for embedding_id, distance in zip(embedding_ids[0], distances[0])
+        ]
