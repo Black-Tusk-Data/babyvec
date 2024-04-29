@@ -19,6 +19,5 @@ Assuming the Python documentation embeddings were created via example 1, this lo
 
 
 ## Next steps
- - support for richer metadata on fragments, perhaps via SQLite
  - testing at larger volumes of data, particularly when all computed embeddings will not fit in RAM
  - testing on GPU
