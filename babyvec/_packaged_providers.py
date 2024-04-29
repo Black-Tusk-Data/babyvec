@@ -43,15 +43,18 @@ class SemanticDb:
         self.index = index
         return
 
-    def search(self, query: str, n: int):
-        index_result = self.index.search(query, n)
-        results = []
-        for r in index_result:
-            results.append(
-                self.metadata_store.get_embedding_text_and_metadata(
-                    r.embedding_id
-                )
+    def search(self, query: str, n: int) -> list[DbSearchResult]:
+        index_results = self.index.search(query, n)
+        results: list[DbSearchResult] = []
+        for r in index_results:
+            text, metadata = self.metadata_store.get_embedding_text_and_metadata(
+                r.embedding_id
             )
+            results.append(DbSearchResult(
+                index_search_result=r,
+                text=text,
+                metadata=metadata,
+            ))
         return results
 
 

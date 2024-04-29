@@ -17,3 +17,9 @@ class PersistenceOptions(NamedTuple):
 class IndexSearchResult(NamedTuple):
     embedding_id: EmbeddingId
     distance: float
+
+
+class DbSearchResult(NamedTuple):
+    index_search_result: IndexSearchResult
+    text: str
+    metadata: dict
