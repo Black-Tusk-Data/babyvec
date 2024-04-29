@@ -1,8 +1,11 @@
+from torch import index_reduce
 from babyvec.computer.embedding_computer_jina_bert import EmbeddingComputerJinaBert
 from babyvec.embed_provider.parallelized_cached_embed_provider import ParallelizedCachedEmbedProvider
+from babyvec.index.abstract_index import AbstractIndex
 from babyvec.index.numpy_faiss_index_factory import NumpyFaissIndexFactory
 from babyvec.models import *
 from babyvec.store.abstract_embedding_store import EmbeddingPersistenceOptions
+from babyvec.store.abstract_metadata_store import AbstractMetadataStore
 from babyvec.store.embedding_store_numpy import EmbeddingStoreNumpy
 from babyvec.store.metadata_store_sqlite import MetadataStoreSQLite
 
@@ -29,6 +32,29 @@ class CachedParallelJinaEmbedder(ParallelizedCachedEmbedProvider):
         )
 
 
+class SemanticDb:
+    def __init__(
+            self,
+            *,
+            metadata_store: AbstractMetadataStore,
+            index: AbstractIndex,
+    ):
+        self.metadata_store = metadata_store
+        self.index = index
+        return
+
+    def search(self, query: str, n: int):
+        index_result = self.index.search(query, n)
+        results = []
+        for r in index_result:
+            results.append(
+                self.metadata_store.get_embedding_metadata(
+                    r.embedding_id
+                )
+            )
+        return results
+
+
 def FaissNumpyJinaSemanticDb(
         *,
         persist_dir: str,
@@ -50,4 +76,8 @@ def FaissNumpyJinaSemanticDb(
         store=store,
         computer=computer,
     )
-    return index_factory.build_index()
+
+    return SemanticDb(
+        metadata_store=store.metadata_store,
+        index=index_factory.build_index(),
+    )
