@@ -44,6 +44,7 @@ class FileRef:
 BaseArgs = NamedTuple
 T = TypeVar("T", bound=BaseArgs)
 
+
 def make_cli_arg_parser(
     *,
     name: str,

@@ -7,10 +7,10 @@ from babyvec.store.abstract_embedding_store import AbstractEmbeddingStore
 
 class AbstractIndexFactory(abc.ABC):
     def __init__(
-            self,
-            *,
-            store: AbstractEmbeddingStore,
-            computer: AbstractEmbeddingComputer,
+        self,
+        *,
+        store: AbstractEmbeddingStore,
+        computer: AbstractEmbeddingComputer,
     ):
         self.store = store
         self.computer = computer

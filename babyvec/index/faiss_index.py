@@ -6,20 +6,17 @@ import numpy.typing as npt
 
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
 from babyvec.index.abstract_index import AbstractIndex
-from babyvec.models import EmbeddingId, IndexSearchResult
-from babyvec.store.abstract_embedding_store import AbstractEmbeddingStore
+from babyvec.models import IndexSearchResult
 
 
 class FaissIndex(AbstractIndex):
     def __init__(
-            self,
-            embedding_text_lookup: dict[EmbeddingId, str],
-            computer: AbstractEmbeddingComputer,
-            vectors: npt.ArrayLike,
+        self,
+        computer: AbstractEmbeddingComputer,
+        vectors: npt.ArrayLike,
     ):
         assert len(vectors.shape) == 2, "expected to add a 2-dimensional tensor"
         self.computer = computer
-        self.embedding_text_lookup = embedding_text_lookup
         embed_size = vectors.shape[1]
         self.index = faiss.IndexFlatL2(embed_size)
         self.index.add(vectors)
@@ -33,11 +30,10 @@ class FaissIndex(AbstractIndex):
         query_embed = self.computer.compute_embeddings([query])
         distances, embedding_ids = self.index.search(np.array(query_embed), k_nearest)
 
-        texts = [
-            self.embedding_text_lookup[embed_id]
-            for embed_id in embedding_ids[0]
+        return [
+            IndexSearchResult(
+                embedding_id=embedding_id.item(),
+                distance=distance.item(),
+            )
+            for embedding_id, distance in zip(embedding_ids[0], distances[0])
         ]
-        return [IndexSearchResult(
-            text=text,
-            distance=distance.item(),
-        ) for text, distance in zip(texts, distances[0])]

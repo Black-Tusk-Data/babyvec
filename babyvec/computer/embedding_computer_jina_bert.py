@@ -9,11 +9,14 @@ DEFAULT_MODEL_NAME = "jinaai/jina-embeddings-v2-base-en"
 
 class EmbeddingComputerJinaBert(AbstractEmbeddingComputer):
     def __init__(
-            self,
-            compute_options: EmbedComputeOptions,
-            model_name: str = DEFAULT_MODEL_NAME,
+        self,
+        compute_options: EmbedComputeOptions,
+        model_name: str = DEFAULT_MODEL_NAME,
     ):
-        logging.info("JinaBert embedding computer coming online, with options: %s", compute_options)
+        logging.info(
+            "JinaBert embedding computer coming online, with options: %s",
+            compute_options,
+        )
         super().__init__(compute_options)
         self.model_name = model_name
         self.model = AutoModel.from_pretrained(
@@ -26,4 +29,4 @@ class EmbeddingComputerJinaBert(AbstractEmbeddingComputer):
         return self.model.encode(
             texts,
             device=self.compute_options.device,
-        ) # float32
+        )  # float32
