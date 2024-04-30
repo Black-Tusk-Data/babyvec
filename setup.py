@@ -3,8 +3,6 @@
 import os
 from setuptools import find_packages, setup
 
-lib_folder = os.path.dirname(os.path.realpath(__file__))
-requirement_path = f"{lib_folder}/requirements.txt"
 
 requirements = [
     "faiss-cpu",
@@ -24,7 +22,7 @@ setup(name='babyvec',
       packages=find_packages(),
       package_data={
           '': ['*.yaml'],
-          "pyjobq": ["py.typed"],
+          "babyvec": ["py.typed"],
       },
       install_requires=requirements,
       extras_require = {

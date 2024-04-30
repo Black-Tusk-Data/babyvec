@@ -4,7 +4,7 @@ import os
 import urllib.request as request
 import zipfile
 
-from nltk.tokenize import sent_tokenize
+from babyvec.chunker.rolling_sentence_window_chunker import RollingWindowSentenceChunker
 
 
 TMP_ZIP_FILE = "/tmp/python-docs.zip"
@@ -36,31 +36,10 @@ def _get_python_documentation_corpus() -> str:
     return b" ".join(line.strip() for line in lines).decode("utf-8")
 
 
-def _chunkify(
-        sentences: list[str],
-        *,
+def get_python_documentation_fragments() -> list[str]:
+    corpus = _get_python_documentation_corpus()
+    chunker = RollingWindowSentenceChunker(
         window_size=3,
         overlap=1,
-) -> list[str]:
-    res = []
-    step_size = window_size - overlap
-    for i in range(0, len(sentences), step_size):
-        res.append("\n".join(
-            sentences[i:i+window_size]
-        ))
-    return res
-
-
-def get_python_documentation_fragments() -> list[str]:
-    sentences: list[str]
-    if os.path.exists(TMP_SENT_TOKENIZED):
-        with open(TMP_SENT_TOKENIZED, "r") as f:
-            sentences = json.load(f)
-    else:
-        corpus = _get_python_documentation_corpus()
-        sentences = sent_tokenize(corpus)
-        with open(TMP_SENT_TOKENIZED, "w") as f:
-            json.dump(sentences, f)
-
-    chunks = _chunkify(sentences)
-    return chunks
+    )
+    return list(chunker.chunkify_document(corpus))
