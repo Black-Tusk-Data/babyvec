@@ -8,6 +8,7 @@ requirement_path = f"{lib_folder}/requirements.txt"
 
 requirements = [
     "faiss-cpu",
+    "nltk",
     "npy_append_array",
     "numpy",
     "torch",
