@@ -13,13 +13,16 @@ class FaissIndex(AbstractIndex):
     def __init__(
         self,
         computer: AbstractEmbeddingComputer,
-        vectors: npt.ArrayLike,
+        vectors: npt.NDArray,
     ):
         assert len(vectors.shape) == 2, "expected to add a 2-dimensional tensor"
         self.computer = computer
         embed_size = vectors.shape[1]
         self.index = faiss.IndexFlatL2(embed_size)
-        self.index.add(vectors)
+        self.index.add(
+            vectors.shape[0],
+            vectors,
+        )
         logging.info("loaded FAISS index with %d vectors", vectors.shape[0])
         return
 
@@ -28,7 +31,13 @@ class FaissIndex(AbstractIndex):
         Would be straightforward to search over multiple queries if necessary...
         """
         query_embed = self.computer.compute_embeddings([query])
-        distances, embedding_ids = self.index.search(np.array(query_embed), k_nearest)
+        distances, embedding_ids = self.index.search(
+            1,
+            np.array(query_embed),
+            k_nearest,
+            None,  # distances
+            None,  # labels
+        )
 
         return [
             IndexSearchResult(

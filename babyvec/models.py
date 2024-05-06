@@ -1,8 +1,10 @@
 from typing import NamedTuple
+
+import numpy as np
 import numpy.typing as npt
 
 
-Embedding = npt.ArrayLike
+Embedding = npt.NDArray
 EmbeddingId = int
 
 

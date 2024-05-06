@@ -1,4 +1,3 @@
-from torch import index_reduce
 from babyvec.computer.embedding_computer_jina_bert import EmbeddingComputerJinaBert
 from babyvec.embed_provider.parallelized_cached_embed_provider import (
     ParallelizedCachedEmbedProvider,

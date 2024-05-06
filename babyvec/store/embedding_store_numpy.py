@@ -27,7 +27,7 @@ class EmbeddingStoreNumpy(AbstractEmbeddingStore):
             EMBED_TABLE_FNAME,
         )
 
-        self.embed_table: npt.ArrayLike
+        self.embed_table: npt.NDArray
         if os.path.exists(self.embed_table_path):
             self.embed_table = np.load(self.embed_table_path, mmap_mode="r")
         else:
