@@ -1,5 +1,5 @@
 import logging
-from transformers import AutoModel
+from transformers import AutoModel  # type: ignore
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
 from babyvec.models import EmbedComputeOptions, Embedding
 

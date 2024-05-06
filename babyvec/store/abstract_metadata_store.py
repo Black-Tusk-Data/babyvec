@@ -28,4 +28,4 @@ class AbstractMetadataStore(abc.ABC):
     def get_embedding_text_and_metadata(
         self, embedding_id: EmbeddingId
     ) -> tuple[str, dict]:
-        return
+        pass

@@ -1,6 +1,7 @@
 import abc
 import logging
 import time
+from typing import cast
 
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
 from babyvec.embed_provider.abstract_embed_provider import AbstractEmbedProvider
@@ -25,13 +26,14 @@ class CachedEmbedProvider(AbstractEmbedProvider):
             cache_hits = [self.store.get(text) for text in texts]
         else:
             cache_hits = [None] * len(texts)
+            pass
 
         to_compute = {text: i for i, text in enumerate(texts) if cache_hits[i] is None}
 
         logging.debug("found %d cached embeddings", len(cache_hits) - len(to_compute))
 
         if not to_compute:
-            return cache_hits
+            return cast(list[Embedding], cache_hits)
 
         to_compute_uniq = list(set(to_compute.keys()))
 
@@ -47,10 +49,12 @@ class CachedEmbedProvider(AbstractEmbedProvider):
             if self.store:
                 self.store.put(text=text, embedding=embed)
             cache_hits[to_compute[text]] = embed
+            pass
 
         if self.store:
             t2 = time.time()
             logging.debug(
                 "stored %d embeddings in %f s", len(to_compute_uniq), round(t2 - t1, 2)
             )
-        return cache_hits
+            pass
+        return cast(list[Embedding], cache_hits)

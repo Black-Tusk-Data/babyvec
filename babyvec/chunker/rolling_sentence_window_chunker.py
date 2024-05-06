@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from nltk.tokenize import sent_tokenize
+from nltk.tokenize import sent_tokenize  # type: ignore
 
 from babyvec.chunker.abstract_chunker import AbstractChunker
 

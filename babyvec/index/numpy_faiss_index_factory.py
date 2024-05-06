@@ -12,10 +12,11 @@ class NumpyFaissIndexFactory(AbstractIndexFactory):
         computer: AbstractEmbeddingComputer,
     ):
         super().__init__(store=store, computer=computer)
+        self.store = store
         return
 
     def build_index(self) -> FaissIndex:
-        store: EmbeddingStoreNumpy = self.store
+        store: EmbeddingStoreNumpy = self.store  # type: ignore
         return FaissIndex(
             computer=self.computer,
             vectors=store.embed_table,

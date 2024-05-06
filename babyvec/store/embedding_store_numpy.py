@@ -8,7 +8,7 @@ from babyvec.store.abstract_embedding_store import (
     AbstractEmbeddingStore,
     EmbeddingPersistenceOptions,
 )
-from npy_append_array import NpyAppendArray
+from npy_append_array import NpyAppendArray  # type: ignore
 import numpy as np
 import numpy.typing as npt
 

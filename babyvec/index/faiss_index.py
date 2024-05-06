@@ -1,6 +1,6 @@
 import logging
 
-import faiss
+import faiss  # type: ignore
 import numpy as np
 import numpy.typing as npt
 
