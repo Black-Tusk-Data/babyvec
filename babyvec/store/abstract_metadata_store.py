@@ -1,7 +1,7 @@
 import abc
 import os
 
-from babyvec.models import EmbeddingId, PersistenceOptions
+from babyvec.models import CorpusFragment, EmbeddingId, PersistenceOptions
 
 
 class AbstractMetadataStore(abc.ABC):
@@ -24,6 +24,22 @@ class AbstractMetadataStore(abc.ABC):
     def get_embedding_id(self, text: str) -> EmbeddingId | None:
         pass
 
+    # TODO: may not need this, in favor of fetching relevant fragments
     @abc.abstractmethod
     def get_embedding_text(self, embedding_id: EmbeddingId) -> str:
+        pass
+
+    @abc.abstractmethod
+    def get_fragments_for_embedding(
+        self, embedding_id: EmbeddingId
+    ) -> list[CorpusFragment]:
+        pass
+
+    @abc.abstractmethod
+    def add_fragment(
+        self,
+        *,
+        embedding_id: EmbeddingId,
+        fragment: CorpusFragment,
+    ) -> str:
         pass

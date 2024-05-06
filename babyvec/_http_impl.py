@@ -2,11 +2,12 @@ from contextlib import asynccontextmanager
 import logging
 from types import SimpleNamespace
 
+from babyvec.store.abstract_embedding_store import EmbeddingPersistenceOptions
+from babyvec.store.embedding_store_numpy import EmbeddingStoreNumpy
 from fastapi import FastAPI
 from pydantic import BaseModel
 
 from babyvec.common import BaseArgs
-from babyvec._packaged_providers import CachedParallelJinaEmbedder
 
 
 DEFAULT_PORT = 9999
@@ -22,7 +23,8 @@ class HttpServerArgs(BaseArgs):
 
 
 class Services(SimpleNamespace):
-    embedder: CachedParallelJinaEmbedder
+    # embedder: CachedParallelJinaEmbedder
+    pass
 
 
 services = Services()
@@ -35,11 +37,11 @@ class GetEmbeddingsInput(BaseModel):
 def build_app(args: HttpServerArgs):
     def init_app():
         logging.info("starting babyvec server...")
-        services.embedder = CachedParallelJinaEmbedder(
-            n_computers=args.n_computers,
-            persist_dir=args.persist_dir,
-            device=args.device,
-        )
+        # services.embedder = CachedParallelJinaEmbedder(
+        #     n_computers=args.n_computers,
+        #     persist_dir=args.persist_dir,
+        #     device=args.device,
+        # )
         logging.info("initialized successfully!")
         return
 
@@ -48,14 +50,15 @@ def build_app(args: HttpServerArgs):
         init_app()
         yield
         logging.info("shutting down babyvec server...")
-        services.embedder.shutdown()
+        # services.embedder.shutdown()
         return
 
     app = FastAPI(lifespan=lifespan)
 
     @app.post("/embeddings")
     def get_embeddings(body: GetEmbeddingsInput):
-        embeddings = services.embedder.get_embeddings(body.texts)
-        return [embed.tolist() for embed in embeddings]
+        return []
+        # embeddings = services.embedder.get_embeddings(body.texts)
+        # return [embed.tolist() for embed in embeddings]
 
     return app

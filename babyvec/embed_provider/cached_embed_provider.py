@@ -5,7 +5,7 @@ from typing import cast
 
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
 from babyvec.embed_provider.abstract_embed_provider import AbstractEmbedProvider
-from babyvec.models import EmbedComputeOptions, Embedding
+from babyvec.models import CorpusFragment, EmbedComputeOptions, Embedding
 from babyvec.store.abstract_embedding_store import AbstractEmbeddingStore
 
 

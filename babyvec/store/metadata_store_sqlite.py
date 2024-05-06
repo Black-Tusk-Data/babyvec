@@ -1,8 +1,10 @@
+import json
 import os
+from uuid import uuid4
 
 from babyvec.common import FileRef
 from babyvec.lib.sqlitedb import SQLiteDB
-from babyvec.models import EmbeddingId, PersistenceOptions
+from babyvec.models import CorpusFragment, EmbeddingId, PersistenceOptions
 from babyvec.store.abstract_metadata_store import AbstractMetadataStore
 
 
@@ -17,7 +19,7 @@ SCHEMA = """
   CREATE TABLE IF NOT EXISTS fragment (
     fragment_id  TEXT  NOT NULL  PRIMARY KEY,
     embed_id  INTEGER  NOT NULL,
-    text  TEXT  NOT NULL  UNIQUE,
+    text  TEXT  NOT NULL,
     metadata_json  TEXT,
 
     FOREIGN KEY (embed_id) REFERENCES text_embedding (embed_id)
@@ -80,3 +82,53 @@ class MetadataStoreSQLite(AbstractMetadataStore):
         )
         assert rows
         return rows[0]["text"]
+
+    def add_fragment(
+        self,
+        *,
+        embedding_id: EmbeddingId,
+        fragment: CorpusFragment,
+    ) -> str:
+        fragment_id = str(uuid4())
+        with self.db.cursor() as cur:
+            cur.execute(
+                """
+                insert into fragment (
+                  fragment_id,
+                  embed_id,
+                  text,
+                  metadata_json
+                ) values (
+                  :fragment_id,
+                  :embed_id,
+                  :text,
+                  :metadata_json
+                )
+                """,
+                {
+                    "fragment_id": fragment_id,
+                    "embed_id": embedding_id,
+                    "text": fragment.text,
+                    "metadata_json": json.dumps(fragment.metadata),
+                },
+            )
+        return fragment_id
+
+    def get_fragments_for_embedding(
+        self, embedding_id: EmbeddingId
+    ) -> list[CorpusFragment]:
+        rows = self.db.query(
+            """
+        select f.text,
+               f.metadata_json
+          from fragment f
+         where embed_id = :embed_id
+        """,
+            {
+                "embed_id": embedding_id,
+            },
+        )
+        return [
+            CorpusFragment(text=row["text"], metadata=json.loads(row["metadata_json"]))
+            for row in rows
+        ]
