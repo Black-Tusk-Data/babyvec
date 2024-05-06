@@ -37,6 +37,9 @@ def get_store():
     )
 
 
+shutil.rmtree(PERSIST_DIR, ignore_errors=True)
+
+
 class EmbeddingStoreNumpy_Test(TestCase):
     def test_basic_getting_and_setting(self):
         store = get_store()

@@ -17,7 +17,7 @@ class AbstractMetadataStore(abc.ABC):
         return
 
     @abc.abstractmethod
-    def add_text(self, *, text: str, embedding_id: EmbeddingId, metadata: dict) -> None:
+    def add_text_embedding(self, *, text: str, embedding_id: EmbeddingId) -> None:
         pass
 
     @abc.abstractmethod
@@ -25,7 +25,5 @@ class AbstractMetadataStore(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_embedding_text_and_metadata(
-        self, embedding_id: EmbeddingId
-    ) -> tuple[str, dict]:
+    def get_embedding_text(self, embedding_id: EmbeddingId) -> str:
         pass
