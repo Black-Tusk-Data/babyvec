@@ -53,5 +53,5 @@ class RollingWindowChunker_Test(TestCase):
             ),
             ['a b c d e', 'b c d e f', 'c d e f g']
         )
-        
+
         return
