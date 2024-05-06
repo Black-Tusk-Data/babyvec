@@ -15,9 +15,12 @@ np.random.seed(11)
 PERSIST_DIR = "/tmp/.tmp-store-test"
 EMBED_LENGTH = 123
 
+rng = np.random.default_rng()
+
+
 embeddings = {
-    "anything": np.random.random(EMBED_LENGTH),
-    "another": np.random.random(EMBED_LENGTH),
+    "anything": rng.standard_normal(size=EMBED_LENGTH, dtype=np.float32),
+    "another": rng.standard_normal(size=EMBED_LENGTH, dtype=np.float32),
 }
 
 if os.path.exists(PERSIST_DIR):
@@ -56,7 +59,10 @@ class EmbeddingStoreNumpy_Test(TestCase):
 
     def test_multiple_put(self):
         store = get_store()
-        embeds = [np.random.random(EMBED_LENGTH) for i in range(1000)]
+        embeds = [
+            rng.standard_normal(size=EMBED_LENGTH, dtype=np.float32)
+            for i in range(1000)
+        ]
         for i in range(0, len(embeds), 100):
             chunk = embeds[i : i + 100]
             store.put_many(
@@ -72,7 +78,9 @@ class EmbeddingStoreNumpy_Test(TestCase):
         return
 
     def test_persistence(self):
-        embeds = [np.random.random(EMBED_LENGTH) for _ in range(100)]
+        embeds = [
+            rng.standard_normal(size=EMBED_LENGTH, dtype=np.float32) for _ in range(100)
+        ]
         store1 = get_store()
         for i, embed in enumerate(embeds):
             store1.put(text=f"test-{i}", embedding=embed)
