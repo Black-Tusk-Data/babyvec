@@ -4,7 +4,8 @@ import numpy as np
 import numpy.typing as npt
 
 
-Embedding = npt.NDArray
+EmbeddingScalarType = np.float64
+Embedding = npt.NDArray[EmbeddingScalarType]
 EmbeddingId = int
 
 

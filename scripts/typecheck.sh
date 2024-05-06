@@ -9,7 +9,12 @@ typecheck_mypy() {
     python -m mypy ./babyvec
 }
 
+typecheck_pyright() {
+    python -m pyright ./babyvec
+}
+
 
 lint && \
-    typecheck_mypy
+    typecheck_mypy && \
+    typecheck_pyright
 

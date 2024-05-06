@@ -35,8 +35,8 @@ class MetadataStoreSQLite(AbstractMetadataStore):
 
     @contextlib.contextmanager
     def _cursor(self, autocommit=True):
+        cursor = self.dbcon.cursor()
         try:
-            cursor = self.dbcon.cursor()
             yield cursor
             if autocommit:
                 self.dbcon.commit()

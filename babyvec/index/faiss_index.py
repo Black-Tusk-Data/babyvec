@@ -6,14 +6,14 @@ import numpy.typing as npt
 
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
 from babyvec.index.abstract_index import AbstractIndex
-from babyvec.models import IndexSearchResult
+from babyvec.models import Embedding, EmbeddingScalarType, IndexSearchResult
 
 
 class FaissIndex(AbstractIndex):
     def __init__(
         self,
         computer: AbstractEmbeddingComputer,
-        vectors: npt.NDArray,
+        vectors: npt.NDArray[EmbeddingScalarType],
     ):
         assert len(vectors.shape) == 2, "expected to add a 2-dimensional tensor"
         self.computer = computer

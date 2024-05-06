@@ -2,7 +2,7 @@ import os
 import pickle
 import shelve
 
-from babyvec.models import Embedding, EmbeddingId
+from babyvec.models import Embedding, EmbeddingId, EmbeddingScalarType
 from babyvec.store.abstract_metadata_store import AbstractMetadataStore
 from babyvec.store.abstract_embedding_store import (
     AbstractEmbeddingStore,
@@ -27,7 +27,7 @@ class EmbeddingStoreNumpy(AbstractEmbeddingStore):
             EMBED_TABLE_FNAME,
         )
 
-        self.embed_table: npt.NDArray
+        self.embed_table: npt.NDArray[EmbeddingScalarType]
         if os.path.exists(self.embed_table_path):
             self.embed_table = np.load(self.embed_table_path, mmap_mode="r")
         else:

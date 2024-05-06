@@ -43,14 +43,14 @@ class EmbeddingStoreNumpy_Test(TestCase):
         res = store.get("anything")
         np.testing.assert_array_equal(
             embeddings["anything"],
-            store.get("anything"),
+            store.get("anything"),  # type: ignore
         )
 
         self.assertIsNone(store.get("another"))
         store.put(text="another", embedding=embeddings["another"])
         np.testing.assert_array_equal(
             embeddings["another"],
-            store.get("another"),
+            store.get("another"),  # type: ignore
         )
         return
 
@@ -66,7 +66,7 @@ class EmbeddingStoreNumpy_Test(TestCase):
 
         for i, embed in enumerate(embeds):
             np.testing.assert_array_equal(
-                store.get(f"thing-{i}"),
+                store.get(f"thing-{i}"),  # type: ignore
                 embed,
             )
         return
@@ -80,7 +80,7 @@ class EmbeddingStoreNumpy_Test(TestCase):
         store2 = get_store()
         for i, embed in enumerate(embeds):
             np.testing.assert_array_equal(
-                store2.get(f"test-{i}"),
+                store2.get(f"test-{i}"),  # type: ignore
                 embed,
             )
         return

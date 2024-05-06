@@ -11,6 +11,8 @@ from babyvec.store.abstract_embedding_store import AbstractEmbeddingStore
 
 
 class ParallelizedCachedEmbedProvider(CachedEmbedProvider):
+    computer: ParallelizedEmbeddingComputer
+
     def __init__(
         self,
         *,

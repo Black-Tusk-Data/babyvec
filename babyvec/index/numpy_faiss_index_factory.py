@@ -5,6 +5,8 @@ from babyvec.store.embedding_store_numpy import EmbeddingStoreNumpy
 
 
 class NumpyFaissIndexFactory(AbstractIndexFactory):
+    store: EmbeddingStoreNumpy
+
     def __init__(
         self,
         *,
@@ -16,7 +18,7 @@ class NumpyFaissIndexFactory(AbstractIndexFactory):
         return
 
     def build_index(self) -> FaissIndex:
-        store: EmbeddingStoreNumpy = self.store  # type: ignore
+        store: EmbeddingStoreNumpy = self.store
         return FaissIndex(
             computer=self.computer,
             vectors=store.embed_table,
