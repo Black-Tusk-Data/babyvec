@@ -1,6 +1,5 @@
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
 from babyvec.computer.embedding_computer_jina_bert import EmbeddingComputerJinaBert
-from babyvec.embed_provider.abstract_embed_provider import AbstractEmbedProvider
 from babyvec.embed_provider.cached_embed_provider import CachedEmbedProvider
 from babyvec.embed_provider.parallelized_cached_embed_provider import (
     ParallelizedCachedEmbedProvider,
@@ -14,7 +13,6 @@ from babyvec.models import (
 )
 from babyvec.store.abstract_embedding_store import (
     AbstractEmbeddingStore,
-    EmbeddingPersistenceOptions,
 )
 from babyvec.store.abstract_metadata_store import AbstractMetadataStore
 from babyvec.store.embedding_store_numpy import EmbeddingStoreNumpy
@@ -30,17 +28,17 @@ class FaissDb:
         n_computers: int = 1,
         computer_type: type[AbstractEmbeddingComputer] = EmbeddingComputerJinaBert,
         metadata_store_type: type[AbstractMetadataStore] = MetadataStoreSQLite,
-        embed_store_type: type[EmbeddingStoreNumpy] = EmbeddingStoreNumpy,
+        embed_store_type: type[AbstractEmbeddingStore] = EmbeddingStoreNumpy,
     ):
-        self.persist_options = EmbeddingPersistenceOptions(
-            persist_options=PersistenceOptions(persist_dir=persist_dir),
-            metadata_store_type=metadata_store_type,
-        )
+        self.persist_options = PersistenceOptions(persist_dir=persist_dir)
         self.compute_options = EmbedComputeOptions(
             device=device,
         )
-        self.embed_store = embed_store_type(self.persist_options)
-        # TODO: this is messy
+        self.metadata_store = metadata_store_type(self.persist_options)
+        self.embed_store = embed_store_type(
+            metadata_store=self.metadata_store,
+            persist_options=self.persist_options,
+        )
         self.embedding_provider = ParallelizedCachedEmbedProvider(
             n_computers=n_computers,
             compute_options=self.compute_options,
@@ -51,16 +49,16 @@ class FaissDb:
         return
 
     def ingest_fragments(self, fragments: list[CorpusFragment]) -> None:
-        # TODO: The following is hackish and indicates a weakness of the current abstractions.
-        #       Embedding provider should expose 'persist_embeddings', returning the embed IDs
-        self.embedding_provider.get_embeddings(
+        embedding_ids = self.embedding_provider.persist_embeddings(
             [fragment.text for fragment in fragments]
         )
-        for fragment in fragments:
+
+        for embed_id, fragment in zip(embedding_ids, fragments):
             self.embed_store.metadata_store.add_fragment(
-                embedding_id=self.embed_store.metadata_store.get_embedding_id(fragment.text),  # type: ignore
+                embedding_id=embed_id,
                 fragment=fragment,
             )
+            pass
         return
 
     def index_existing_fragments(self) -> None:

@@ -7,7 +7,6 @@ import numpy as np
 from babyvec.models import PersistenceOptions
 from babyvec.store.metadata_store_sqlite import MetadataStoreSQLite
 
-from ..abstract_embedding_store import EmbeddingPersistenceOptions
 from ..embedding_store_numpy import EmbeddingStoreNumpy
 
 np.random.seed(11)
@@ -28,12 +27,13 @@ if os.path.exists(PERSIST_DIR):
     pass
 
 
+persist_options = PersistenceOptions(persist_dir=PERSIST_DIR)
+
+
 def get_store():
     return EmbeddingStoreNumpy(
-        EmbeddingPersistenceOptions(
-            persist_options=PersistenceOptions(persist_dir=PERSIST_DIR),
-            metadata_store_type=MetadataStoreSQLite,
-        )
+        persist_options=persist_options,
+        metadata_store=MetadataStoreSQLite(persist_options),
     )
 
 

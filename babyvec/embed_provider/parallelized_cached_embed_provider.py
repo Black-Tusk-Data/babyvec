@@ -4,7 +4,6 @@ from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComput
 from babyvec.computer.parallelized_embedding_computer import (
     ParallelizedEmbeddingComputer,
 )
-from babyvec.embed_provider.abstract_embed_provider import AbstractEmbedProvider
 from babyvec.embed_provider.cached_embed_provider import CachedEmbedProvider
 from babyvec.models import EmbedComputeOptions
 from babyvec.store.abstract_embedding_store import AbstractEmbeddingStore
@@ -31,15 +30,4 @@ class ParallelizedCachedEmbedProvider(CachedEmbedProvider):
         )
 
         super().__init__(computer=computer, store=store)
-        return
-
-    def shutdown(self):
-        self.computer.shutdown()
-        return
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.shutdown()
         return

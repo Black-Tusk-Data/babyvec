@@ -6,7 +6,7 @@ lint() {
 }
 
 typecheck_mypy() {
-    python -m mypy ./babyvec
+    python -m mypy  --check-untyped-defs ./babyvec
 }
 
 typecheck_pyright() {

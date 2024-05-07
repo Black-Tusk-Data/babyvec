@@ -12,3 +12,6 @@ class AbstractEmbeddingComputer(abc.ABC):
     @abc.abstractmethod
     def compute_embeddings(self, texts: list[str]) -> list[Embedding]:
         pass
+
+    def shutdown(self) -> None:
+        return

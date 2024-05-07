@@ -2,7 +2,6 @@ from contextlib import asynccontextmanager
 import logging
 from types import SimpleNamespace
 
-from babyvec.store.abstract_embedding_store import EmbeddingPersistenceOptions
 from babyvec.store.embedding_store_numpy import EmbeddingStoreNumpy
 from fastapi import FastAPI
 from pydantic import BaseModel

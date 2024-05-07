@@ -19,6 +19,7 @@ class FaissIndex(AbstractIndex):
         self.computer = computer
         embed_size = vectors.shape[1]
         self.index = faiss.IndexFlatL2(embed_size)
+        # pylint: disable=no-value-for-parameter
         self.index.add(vectors)  # type: ignore
         logging.info("loaded FAISS index with %d vectors", vectors.shape[0])
         return
@@ -27,7 +28,9 @@ class FaissIndex(AbstractIndex):
         """
         Would be straightforward to search over multiple queries if necessary...
         """
+        #
         query_embed = self.computer.compute_embeddings([query])
+        # pylint: disable=no-value-for-parameter
         distances, embedding_ids = self.index.search(np.array(query_embed), k_nearest)  # type: ignore
 
         return [

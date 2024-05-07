@@ -4,12 +4,15 @@ import time
 from typing import cast
 
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
-from babyvec.embed_provider.abstract_embed_provider import AbstractEmbedProvider
-from babyvec.models import CorpusFragment, EmbedComputeOptions, Embedding
+from babyvec.models import CorpusFragment, EmbedComputeOptions, Embedding, EmbeddingId
 from babyvec.store.abstract_embedding_store import AbstractEmbeddingStore
 
 
-class CachedEmbedProvider(AbstractEmbedProvider):
+class CachedEmbedProvider(abc.ABC):
+    """
+    This interface is responsible for combining a 'computer' and a 'store' to achieve persistent embeddings.
+    """
+
     def __init__(
         self,
         *,
@@ -58,3 +61,23 @@ class CachedEmbedProvider(AbstractEmbedProvider):
             )
             pass
         return cast(list[Embedding], cache_hits)
+
+    def persist_embeddings(self, texts: list[str]) -> list[EmbeddingId]:
+        assert self.store
+        # TODO: this could be optimized into a single 'put_many' call.
+        self.get_embeddings(texts)
+        embedding_ids = [
+            self.store.metadata_store.get_embedding_id(text) for text in texts
+        ]
+        return cast(list[EmbeddingId], embedding_ids)
+
+    def shutdown(self):
+        self.computer.shutdown()
+        return
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.shutdown()
+        return
