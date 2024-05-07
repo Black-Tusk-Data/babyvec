@@ -4,7 +4,6 @@ import numpy as np
 
 from babyvec.computer.embedding_computer_jina_bert import EmbeddingComputerJinaBert
 from babyvec.models import EmbedComputeOptions, Embedding
-
 from ..parallelized_embedding_computer import ParallelizedEmbeddingComputer
 
 

@@ -5,7 +5,8 @@ import logging
 import os
 import time
 
-from babyvec import FaissNumpyJinaSemanticDb
+from babyvec.faiss_db import FaissDb
+
 from common import setup_logging
 
 
@@ -17,30 +18,32 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 def main():
     t0 = time.time()
-    db = FaissNumpyJinaSemanticDb(
+    with FaissDb(
         persist_dir="./persist",
+        n_computers=1,
         device="mps",
-    )
-    t1 = time.time()
-    logging.info(
-        "loaded index in %f seconds",
-        round(t1 - t0, 2)
-    )
-    while True:
-        query = input("Search Python documentation: ")
-        if not query:
-            return
-        matches = db.search(
-            query,
-            5,
-        )
-        logging.info("results: \n%s", json.dumps([
-            m._asdict()
-            for m in matches
-        ], indent=2))
+    ) as db:
+        db.index_existing_fragments()
+        t1 = time.time()
+        logging.info("loaded index in %f seconds", round(t1 - t0, 2))
+
+        while True:
+            query = input("Search Python documentation: ")
+            if not query:
+                return
+            matches = db.search(
+                query,
+                5,
+            )
+            logging.info(
+                "results: \n%s",
+                json.dumps([m.fragment.text for m in matches], indent=2),
+            )
+            pass
+        pass
 
     return
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

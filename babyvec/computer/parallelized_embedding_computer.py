@@ -1,16 +1,14 @@
-import abc
+import json
 import json
 import logging
 from multiprocessing import Process, Pipe
 from multiprocessing.connection import Connection
-import time
 from typing import Type
 
 import numpy as np
 
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
 from babyvec.models import EmbedComputeOptions, Embedding
-
 
 KILL_COMMAND = b"STOP"
 

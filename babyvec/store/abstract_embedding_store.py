@@ -1,27 +1,27 @@
 import abc
-import os
-from typing import NamedTuple, Type
 
-from babyvec.models import Embedding, EmbeddingId, PersistenceOptions
+import numpy.typing as npt
+
+from babyvec.models import (
+    Embedding,
+    EmbeddingId,
+    EmbeddingScalarType,
+    PersistenceOptions,
+)
 from babyvec.store.abstract_metadata_store import AbstractMetadataStore
 
 
-class EmbeddingPersistenceOptions(NamedTuple):
-    persist_options: PersistenceOptions
-    metadata_store_type: Type[AbstractMetadataStore]
-
-
 class AbstractEmbeddingStore(abc.ABC):
+    embed_table: npt.NDArray[EmbeddingScalarType]
+
     def __init__(
         self,
-        options: EmbeddingPersistenceOptions,
+        *,
+        metadata_store: AbstractMetadataStore,
+        persist_options: PersistenceOptions,
     ):
-        self.persist_dir = options.persist_options.persist_dir
-        if not os.path.exists(self.persist_dir):
-            os.makedirs(self.persist_dir)
-        self.metadata_store = options.metadata_store_type(
-            options.persist_options,
-        )
+        self.metadata_store = metadata_store
+        self.persist_options = persist_options
         return
 
     @abc.abstractmethod
@@ -29,7 +29,13 @@ class AbstractEmbeddingStore(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def put(
-        self, *, text: str, embedding: Embedding, metadata: dict | None = None
-    ) -> None:
+    def put(self, *, text: str, embedding: Embedding) -> EmbeddingId:
         pass
+
+    @abc.abstractmethod
+    def put_many(
+        self, *, texts: list[str], embeddings: list[Embedding]
+    ) -> list[EmbeddingId]:
+        pass
+
+    pass

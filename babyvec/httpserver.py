@@ -2,10 +2,8 @@
 
 import uvicorn
 
-
-from babyvec.common import make_cli_arg_parser, setup_logging
 from babyvec._http_impl import build_app, HttpServerArgs
-
+from babyvec.common import make_cli_arg_parser, setup_logging
 
 setup_logging()
 

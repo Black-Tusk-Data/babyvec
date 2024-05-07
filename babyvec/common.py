@@ -69,9 +69,9 @@ def make_cli_arg_parser(
             kwargs["default"] = defaults[name]
         parser.add_argument(f"--{cli_argname}", **kwargs)
 
-    def parse_args():
+    def parse_args() -> T:
         args = parser.parse_args()
-        return args_shape(**{k: v for k, v in vars(args).items() if v})
+        return args_shape(**{k: v for k, v in vars(args).items() if v})  # type: ignore
 
     return parse_args
 

@@ -4,8 +4,8 @@ from typing import Iterable
 
 class AbstractChunker(abc.ABC):
     def __init__(
-            self,
-            delimiter: str = " ",
+        self,
+        delimiter: str = " ",
     ):
         self.delimiter = delimiter
         return

@@ -1,17 +1,20 @@
 import os
-import pickle
-import shelve
+from typing import cast
 
-from babyvec.models import Embedding, EmbeddingId
-from babyvec.store.abstract_metadata_store import AbstractMetadataStore
-from babyvec.store.abstract_embedding_store import (
-    AbstractEmbeddingStore,
-    EmbeddingPersistenceOptions,
-)
-from npy_append_array import NpyAppendArray
 import numpy as np
 import numpy.typing as npt
+from npy_append_array import NpyAppendArray  # type: ignore
 
+from babyvec.models import (
+    Embedding,
+    EmbeddingId,
+    EmbeddingScalarType,
+    PersistenceOptions,
+)
+from babyvec.store.abstract_embedding_store import (
+    AbstractEmbeddingStore,
+)
+from babyvec.store.abstract_metadata_store import AbstractMetadataStore
 
 EMBED_TABLE_FNAME = "embed-table.npy"
 
@@ -19,19 +22,22 @@ EMBED_TABLE_FNAME = "embed-table.npy"
 class EmbeddingStoreNumpy(AbstractEmbeddingStore):
     def __init__(
         self,
-        options: EmbeddingPersistenceOptions,
+        *,
+        metadata_store: AbstractMetadataStore,
+        persist_options: PersistenceOptions,
     ):
-        super().__init__(options)
+        super().__init__(metadata_store=metadata_store, persist_options=persist_options)
+
         self.embed_table_path = os.path.join(
-            self.persist_dir,
+            self.persist_options.persist_dir,
             EMBED_TABLE_FNAME,
         )
-
-        self.embed_table: npt.ArrayLike
+        self.embed_table: npt.NDArray[EmbeddingScalarType]
         if os.path.exists(self.embed_table_path):
             self.embed_table = np.load(self.embed_table_path, mmap_mode="r")
         else:
             self.embed_table = np.array([])
+            pass
         return
 
     def get(self, text: str) -> Embedding | None:
@@ -40,39 +46,27 @@ class EmbeddingStoreNumpy(AbstractEmbeddingStore):
             return None
         return self.embed_table[embed_id]
 
-    def put(
-        self, *, text: str, embedding: Embedding, metadata: dict | None = None
-    ) -> None:
-        self.put_many(
+    def put(self, *, text: str, embedding: Embedding) -> EmbeddingId:
+        return self.put_many(
             texts=[text],
             embeddings=[embedding],
-            metadatas=[metadata] if metadata else None,
-        )
-        return
+        )[0]
 
     def put_many(
         self,
         *,
         texts: list[str],
         embeddings: list[Embedding],
-        metadatas: list[dict] | None = None
-    ) -> None:
+    ) -> list[EmbeddingId]:
         assert len(texts) == len(embeddings)
-        if metadatas:
-            assert len(texts) == len(metadatas)
         if not texts:
-            return
-        existing_embed_ids = [
-            self.metadata_store.get_embedding_id(text) for text in texts
-        ]
+            return []
+        embed_ids = [self.metadata_store.get_embedding_id(text) for text in texts]
 
         insert_offset = len(self.embed_table)
 
-        missing_indices = [
-            i for i in range(len(existing_embed_ids)) if existing_embed_ids[i] is None
-        ]
+        missing_indices = [i for i in range(len(embed_ids)) if embed_ids[i] is None]
         new_texts: list[str] = []
-        new_metadatas: list[dict] = []
         new_embeddings = np.empty(
             (
                 len(missing_indices),
@@ -82,24 +76,25 @@ class EmbeddingStoreNumpy(AbstractEmbeddingStore):
         for i, idx in enumerate(missing_indices):
             new_embeddings[i] = embeddings[idx]
             new_texts.append(texts[idx])
-            if metadatas:
-                new_metadatas.append(metadatas[idx])
-            else:
-                new_metadatas.append({})
+        pass
 
         # Note!  We do not support adjusting an existing embedding!
         # If we want to do this, need to look at loading the mmap in write mode.
         with NpyAppendArray(self.embed_table_path, delete_if_exists=False) as npaa:
             npaa.append(new_embeddings)
-            for i, text in enumerate(new_texts):
-                self.metadata_store.add_text(
+            for i, idx in enumerate(missing_indices):
+                text = texts[idx]
+                embedding_id = insert_offset + i
+                embed_ids[idx] = embedding_id
+                self.metadata_store.add_text_embedding(
                     text=text,
-                    embedding_id=insert_offset + i,
-                    metadata=new_metadatas[i],
+                    embedding_id=embedding_id,
                 )
+                pass
+            pass
 
         self.embed_table = np.load(
             self.embed_table_path,
             mmap_mode="r",
         )
-        return
+        return cast(list[EmbeddingId], embed_ids)

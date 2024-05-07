@@ -1,18 +1,11 @@
 from collections import deque
-import itertools as it
 from typing import Iterable
 
 from babyvec.chunker.abstract_chunker import AbstractChunker
 
 
 class RollingWindowChunker(AbstractChunker):
-    def __init__(
-            self,
-            *,
-            window_size: int,
-            overlap: int,
-            delimiter: str = " "
-    ):
+    def __init__(self, *, window_size: int, overlap: int, delimiter: str = " "):
         super().__init__(delimiter)
         assert overlap < window_size, "overlap must be less than window_size"
         self.window_size = window_size

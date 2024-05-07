@@ -1,8 +1,9 @@
 import logging
-from transformers import AutoModel
+
+from transformers import AutoModel  # type: ignore
+
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
 from babyvec.models import EmbedComputeOptions, Embedding
-
 
 DEFAULT_MODEL_NAME = "jinaai/jina-embeddings-v2-base-en"
 

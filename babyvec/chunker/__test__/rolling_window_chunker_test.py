@@ -9,11 +9,7 @@ def L():
 
 
 def apply_chunk_params(**kwargs):
-    return list(
-        RollingWindowChunker(**kwargs).chunkify_stream(
-            L()
-        )
-    )
+    return list(RollingWindowChunker(**kwargs).chunkify_stream(L()))
 
 
 class RollingWindowChunker_Test(TestCase):
@@ -30,28 +26,28 @@ class RollingWindowChunker_Test(TestCase):
                 window_size=2,
                 overlap=0,
             ),
-            ['a b', 'c d', 'e f', 'g'],
+            ["a b", "c d", "e f", "g"],
         )
         self.assertEqual(
             apply_chunk_params(
                 window_size=3,
                 overlap=1,
             ),
-            ['a b c', 'c d e', 'e f g'],
+            ["a b c", "c d e", "e f g"],
         )
         self.assertEqual(
             apply_chunk_params(
                 window_size=5,
                 overlap=3,
             ),
-            ['a b c d e', 'c d e f g'],
+            ["a b c d e", "c d e f g"],
         )
         self.assertEqual(
             apply_chunk_params(
                 window_size=5,
                 overlap=4,
             ),
-            ['a b c d e', 'b c d e f', 'c d e f g']
+            ["a b c d e", "b c d e f", "c d e f g"],
         )
 
         return

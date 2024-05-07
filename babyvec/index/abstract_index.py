@@ -9,5 +9,5 @@ class AbstractIndex(abc.ABC):
     """
 
     @abc.abstractmethod
-    def search(self, fragment: str, k_nearest: int) -> list[IndexSearchResult]:
+    def search(self, query: str, k_nearest: int) -> list[IndexSearchResult]:
         pass
