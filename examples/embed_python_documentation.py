@@ -3,7 +3,8 @@
 import logging
 import time
 
-from babyvec import CachedParallelJinaEmbedder
+from babyvec.faiss_db import FaissDb
+from babyvec.models import CorpusFragment
 
 from common import get_python_documentation_fragments, setup_logging
 
@@ -19,21 +20,24 @@ def main():
     logging.info("computing %d embeddings...", len(fragments))
     chunk_size = N_COMPUTERS * 1
     t0 = time.time()
-
-    with CachedParallelJinaEmbedder(
+    with FaissDb(
         persist_dir="./persist",
-        n_computers=N_COMPUTERS,
+        n_computers=1,
         device="mps",
-    ) as embedder:
+    ) as vector_db:
         for lo in range(0, len(fragments), chunk_size):
-            chunk = fragments[lo:lo+chunk_size]
-            embedder.get_embeddings(chunk)
+            chunk = [
+                CorpusFragment(
+                    text=fragment,
+                    metadata={},
+                )
+                for fragment in fragments[lo : lo + chunk_size]
+            ]
+            vector_db.ingest_fragments(chunk)
             t1 = time.time()
             rate = round((lo + chunk_size) / (t1 - t0), 2)
-            logging.debug(
-                "computing %f embeddings / second",
-                rate
-            )
+            logging.debug("computing %f embeddings / second", rate)
+            pass
     logging.info(
         "computed %d embeddings in %f seconds",
         len(fragments),
@@ -42,5 +46,5 @@ def main():
     return
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
