@@ -1,5 +1,4 @@
 from collections import deque
-import itertools as it
 from typing import Iterable
 
 from babyvec.chunker.abstract_chunker import AbstractChunker

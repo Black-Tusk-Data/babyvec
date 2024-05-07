@@ -6,7 +6,7 @@ import numpy.typing as npt
 
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
 from babyvec.index.abstract_index import AbstractIndex
-from babyvec.models import Embedding, EmbeddingScalarType, IndexSearchResult
+from babyvec.models import EmbeddingScalarType, IndexSearchResult
 
 
 class FaissIndex(AbstractIndex):

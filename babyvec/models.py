@@ -3,7 +3,6 @@ from typing import NamedTuple
 import numpy as np
 import numpy.typing as npt
 
-
 EmbeddingScalarType = np.float32
 Embedding = npt.NDArray[EmbeddingScalarType]
 EmbeddingId = int

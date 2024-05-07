@@ -4,7 +4,7 @@ import time
 from typing import cast
 
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
-from babyvec.models import CorpusFragment, EmbedComputeOptions, Embedding, EmbeddingId
+from babyvec.models import Embedding, EmbeddingId
 from babyvec.store.abstract_embedding_store import AbstractEmbeddingStore
 
 

@@ -1,5 +1,5 @@
-import abc
 from typing import Type
+
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
 from babyvec.computer.parallelized_embedding_computer import (
     ParallelizedEmbeddingComputer,

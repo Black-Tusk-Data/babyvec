@@ -1,6 +1,5 @@
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
 from babyvec.computer.embedding_computer_jina_bert import EmbeddingComputerJinaBert
-from babyvec.embed_provider.cached_embed_provider import CachedEmbedProvider
 from babyvec.embed_provider.parallelized_cached_embed_provider import (
     ParallelizedCachedEmbedProvider,
 )

@@ -1,6 +1,10 @@
 import os
 from typing import cast
 
+import numpy as np
+import numpy.typing as npt
+from npy_append_array import NpyAppendArray  # type: ignore
+
 from babyvec.models import (
     Embedding,
     EmbeddingId,
@@ -10,12 +14,7 @@ from babyvec.models import (
 from babyvec.store.abstract_embedding_store import (
     AbstractEmbeddingStore,
 )
-from npy_append_array import NpyAppendArray  # type: ignore
-import numpy as np
-import numpy.typing as npt
-
 from babyvec.store.abstract_metadata_store import AbstractMetadataStore
-
 
 EMBED_TABLE_FNAME = "embed-table.npy"
 

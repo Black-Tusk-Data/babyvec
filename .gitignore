@@ -1,5 +1,6 @@
 __pycache__/
 venv/
+idea/
 
 build/
 babyvec.egg-info/

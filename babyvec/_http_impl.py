@@ -1,19 +1,18 @@
-from contextlib import asynccontextmanager
 import logging
+from contextlib import asynccontextmanager
 from types import SimpleNamespace
 
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+from babyvec.common import BaseArgs
 from babyvec.computer.embedding_computer_jina_bert import EmbeddingComputerJinaBert
 from babyvec.embed_provider.parallelized_cached_embed_provider import (
     ParallelizedCachedEmbedProvider,
 )
 from babyvec.models import EmbedComputeOptions, PersistenceOptions
 from babyvec.store.embedding_store_numpy import EmbeddingStoreNumpy
-from fastapi import FastAPI
-from pydantic import BaseModel
-
-from babyvec.common import BaseArgs
 from babyvec.store.metadata_store_sqlite import MetadataStoreSQLite
-
 
 DEFAULT_PORT = 9999
 DEFAULT_HOST = "127.0.0.1"

@@ -2,11 +2,9 @@ import json
 import os
 from uuid import uuid4
 
-from babyvec.common import FileRef
 from babyvec.lib.sqlitedb import SQLiteDB
 from babyvec.models import CorpusFragment, EmbeddingId, PersistenceOptions
 from babyvec.store.abstract_metadata_store import AbstractMetadataStore
-
 
 DBNAME = "bbvec.sq3"
 

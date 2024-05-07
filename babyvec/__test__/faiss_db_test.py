@@ -5,7 +5,6 @@ from unittest import TestCase
 from babyvec.faiss_db import FaissDb
 from babyvec.models import CorpusFragment
 
-
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 PERSIST_DIR = "/tmp/CorpusFragmentFaissDb_Test"

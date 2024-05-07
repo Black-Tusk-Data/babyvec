@@ -6,7 +6,6 @@ import numpy as np
 
 from babyvec.models import PersistenceOptions
 from babyvec.store.metadata_store_sqlite import MetadataStoreSQLite
-
 from ..embedding_store_numpy import EmbeddingStoreNumpy
 
 np.random.seed(11)
