@@ -2,11 +2,17 @@ from contextlib import asynccontextmanager
 import logging
 from types import SimpleNamespace
 
+from babyvec.computer.embedding_computer_jina_bert import EmbeddingComputerJinaBert
+from babyvec.embed_provider.parallelized_cached_embed_provider import (
+    ParallelizedCachedEmbedProvider,
+)
+from babyvec.models import EmbedComputeOptions, PersistenceOptions
 from babyvec.store.embedding_store_numpy import EmbeddingStoreNumpy
 from fastapi import FastAPI
 from pydantic import BaseModel
 
 from babyvec.common import BaseArgs
+from babyvec.store.metadata_store_sqlite import MetadataStoreSQLite
 
 
 DEFAULT_PORT = 9999
@@ -22,7 +28,7 @@ class HttpServerArgs(BaseArgs):
 
 
 class Services(SimpleNamespace):
-    # embedder: CachedParallelJinaEmbedder
+    embedding_provider: ParallelizedCachedEmbedProvider
     pass
 
 
@@ -36,11 +42,20 @@ class GetEmbeddingsInput(BaseModel):
 def build_app(args: HttpServerArgs):
     def init_app():
         logging.info("starting babyvec server...")
-        # services.embedder = CachedParallelJinaEmbedder(
-        #     n_computers=args.n_computers,
-        #     persist_dir=args.persist_dir,
-        #     device=args.device,
-        # )
+        persist_options = PersistenceOptions(
+            persist_dir=args.persist_dir,
+        )
+        services.embedding_provider = ParallelizedCachedEmbedProvider(
+            n_computers=args.n_computers,
+            compute_options=EmbedComputeOptions(
+                device=args.device,
+            ),
+            computer_type=EmbeddingComputerJinaBert,
+            store=EmbeddingStoreNumpy(
+                persist_options=persist_options,
+                metadata_store=MetadataStoreSQLite(persist_options),
+            ),
+        )
         logging.info("initialized successfully!")
         return
 
@@ -49,15 +64,14 @@ def build_app(args: HttpServerArgs):
         init_app()
         yield
         logging.info("shutting down babyvec server...")
-        # services.embedder.shutdown()
+        services.embedding_provider.shutdown()
         return
 
     app = FastAPI(lifespan=lifespan)
 
     @app.post("/embeddings")
     def get_embeddings(body: GetEmbeddingsInput):
-        return []
-        # embeddings = services.embedder.get_embeddings(body.texts)
-        # return [embed.tolist() for embed in embeddings]
+        embeddings = services.embedding_provider.get_embeddings(body.texts)
+        return [embed.tolist() for embed in embeddings]
 
     return app
