@@ -81,17 +81,16 @@ class MetadataStoreSQLite(AbstractMetadataStore):
         assert rows
         return rows[0]["text"]
 
-    def add_fragment(
+    def ingest_fragment(
         self,
         *,
         embedding_id: EmbeddingId,
         fragment: CorpusFragment,
-    ) -> str:
-        fragment_id = str(uuid4())
+    ) -> None:
         with self.db.cursor() as cur:
             cur.execute(
                 """
-                insert into fragment (
+                insert or replace into fragment (
                   fragment_id,
                   embed_id,
                   text,
@@ -104,20 +103,21 @@ class MetadataStoreSQLite(AbstractMetadataStore):
                 )
                 """,
                 {
-                    "fragment_id": fragment_id,
+                    "fragment_id": fragment.fragment_id,
                     "embed_id": embedding_id,
                     "text": fragment.text,
                     "metadata_json": json.dumps(fragment.metadata),
                 },
             )
-        return fragment_id
+        return
 
     def get_fragments_for_embedding(
         self, embedding_id: EmbeddingId
     ) -> list[CorpusFragment]:
         rows = self.db.query(
             """
-        select f.text,
+        select f.fragment_id,
+               f.text,
                f.metadata_json
           from fragment f
          where embed_id = :embed_id
@@ -127,6 +127,10 @@ class MetadataStoreSQLite(AbstractMetadataStore):
             },
         )
         return [
-            CorpusFragment(text=row["text"], metadata=json.loads(row["metadata_json"]))
+            CorpusFragment(
+                fragment_id=row["fragment_id"],
+                text=row["text"],
+                metadata=json.loads(row["metadata_json"]),
+            )
             for row in rows
         ]

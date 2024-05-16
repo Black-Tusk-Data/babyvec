@@ -25,6 +25,7 @@ class IndexSearchResult(NamedTuple):
 
 
 class CorpusFragment(NamedTuple):
+    fragment_id: str
     text: str
     metadata: dict
     pass

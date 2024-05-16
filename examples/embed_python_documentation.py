@@ -2,6 +2,7 @@
 
 import logging
 import time
+from uuid import uuid4
 
 from babyvec.faiss_db import FaissDb
 from babyvec.models import CorpusFragment
@@ -28,6 +29,7 @@ def main():
         for lo in range(0, len(fragments), chunk_size):
             chunk = [
                 CorpusFragment(
+                    fragment_id=str(uuid4()),
                     text=fragment,
                     metadata={},
                 )

@@ -53,7 +53,7 @@ class FaissDb:
         )
 
         for embed_id, fragment in zip(embedding_ids, fragments):
-            self.embed_store.metadata_store.add_fragment(
+            self.embed_store.metadata_store.ingest_fragment(
                 embedding_id=embed_id,
                 fragment=fragment,
             )

@@ -36,10 +36,10 @@ class AbstractMetadataStore(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def add_fragment(
+    def ingest_fragment(
         self,
         *,
         embedding_id: EmbeddingId,
         fragment: CorpusFragment,
-    ) -> str:
+    ) -> None:
         pass

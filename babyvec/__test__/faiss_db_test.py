@@ -13,18 +13,22 @@ shutil.rmtree(PERSIST_DIR, ignore_errors=True)
 
 FRAGMENTS = [
     CorpusFragment(
+        fragment_id="cat",
         text="cat",
         metadata={"furry": True},
     ),
     CorpusFragment(
+        fragment_id="dog",
         text="dog",
         metadata={"furry": True},
     ),
     CorpusFragment(
+        fragment_id="dolphin",
         text="dolphin",
         metadata={"furry": False},
     ),
     CorpusFragment(
+        fragment_id="seal",
         text="seal",
         metadata={"furry": False},
     ),
