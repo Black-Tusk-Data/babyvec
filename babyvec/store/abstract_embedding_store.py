@@ -38,4 +38,8 @@ class AbstractEmbeddingStore(abc.ABC):
     ) -> list[EmbeddingId]:
         pass
 
+    @abc.abstractmethod
+    def delete_embeddings(self, embedding_ids: list[EmbeddingId]) -> None:
+        pass
+
     pass

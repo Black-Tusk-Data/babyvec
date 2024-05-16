@@ -1,3 +1,4 @@
+import logging
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
 from babyvec.computer.embedding_computer_jina_bert import EmbeddingComputerJinaBert
 from babyvec.embed_provider.parallelized_cached_embed_provider import (
@@ -28,6 +29,7 @@ class FaissDb:
         computer_type: type[AbstractEmbeddingComputer] = EmbeddingComputerJinaBert,
         metadata_store_type: type[AbstractMetadataStore] = MetadataStoreSQLite,
         embed_store_type: type[AbstractEmbeddingStore] = EmbeddingStoreNumpy,
+        track_for_compacting: bool = False,
     ):
         self.persist_options = PersistenceOptions(persist_dir=persist_dir)
         self.compute_options = EmbedComputeOptions(
@@ -45,6 +47,8 @@ class FaissDb:
             store=self.embed_store,
         )
         self.index: FaissIndex | None = None
+        self.track_for_compacting = track_for_compacting
+        self.tracked_ingested_fragment_ids: set[str] = set()
         return
 
     def ingest_fragments(self, fragments: list[CorpusFragment]) -> None:
@@ -53,6 +57,9 @@ class FaissDb:
         )
 
         for embed_id, fragment in zip(embedding_ids, fragments):
+            if self.track_for_compacting:
+                self.tracked_ingested_fragment_ids.add(fragment.fragment_id)
+                pass
             self.embed_store.metadata_store.ingest_fragment(
                 embedding_id=embed_id,
                 fragment=fragment,
@@ -90,10 +97,19 @@ class FaissDb:
         return
 
     def __enter__(self):
+        self.tracked_ingested_fragment_ids = set()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.shutdown()
+        if not self.track_for_compacting:
+            return
+        for fragment_id in self.tracked_ingested_fragment_ids:
+            self.metadata_store.delete_fragment(fragment_id)
+            pass
+        delete_embed_ids = self.metadata_store.compact_embeddings()
+        logging.info("deleting %d embeddings", len(delete_embed_ids))
+        self.embed_store.delete_embeddings(delete_embed_ids)
         return
 
     pass

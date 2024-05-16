@@ -134,3 +134,85 @@ class MetadataStoreSQLite(AbstractMetadataStore):
             )
             for row in rows
         ]
+
+    def delete_fragment(self, fragment_id: str) -> None:
+        with self.db.cursor() as cur:
+            cur.execute(
+                """
+                DELETE
+                  FROM fragment
+                 WHERE fragment_id = :fragment_id
+                """,
+                {"fragment_id": fragment_id},
+            )
+            pass
+        return
+
+    def migrate_embedding_id(
+        self, *, from_embedding_id: EmbeddingId, to_embedding_id: EmbeddingId
+    ) -> None:
+        with self.db.cursor() as cur:
+            cur.execute(
+                """
+            INSERT OR REPLACE INTO text_embedding (
+              embed_id,
+              text
+            ) SELECT (
+              :to_embedding_id,
+              text
+            ) FROM text_embedding
+             WHERE embed_id = :from_embedding_id
+            """,
+                {
+                    "to_embedding_id": to_embedding_id,
+                    "from_embedding_id": from_embedding_id,
+                },
+            )
+            cur.execute(
+                """
+            UPDATE fragment
+               SET embed_id = :to_embedding_id
+             WHERE embed_id = :from_embedding_id
+            """,
+                {
+                    "to_embedding_id": to_embedding_id,
+                    "from_embedding_id": from_embedding_id,
+                },
+            )
+            cur.execute(
+                """
+            DELETE FROM text_embedding
+            WHERE embedding_id = :from_embedding_id
+            """,
+                {
+                    "from_embedding_id": from_embedding_id,
+                },
+            )
+            pass
+        return
+
+    def compact_embeddings(self) -> list[EmbeddingId]:
+        rows = self.db.query(
+            """
+            SELECT embed_id
+              FROM text_embedding te
+         LEFT JOIN fragment f
+                ON f.embed_id = te.embed_id
+             WHERE f.fragment_id IS NULL
+            """
+        )
+        embed_ids = [r["embed_id"] for r in rows]
+        with self.db.cursor() as cur:
+            for embed_id in embed_ids:
+                cur.execute(
+                    """
+                    DELETE FROM text_embedding
+                    WHERE embed_id = :embed_id
+                    """,
+                    {"embed_id": embed_id},
+                )
+                pass
+            pass
+        return embed_ids
+
+    pass

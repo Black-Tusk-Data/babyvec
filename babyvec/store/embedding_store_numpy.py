@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import cast
 
@@ -98,3 +99,32 @@ class EmbeddingStoreNumpy(AbstractEmbeddingStore):
             mmap_mode="r",
         )
         return cast(list[EmbeddingId], embed_ids)
+
+    def delete_embeddings(self, embedding_ids: list[EmbeddingId]) -> None:
+        last_embed_id = len(self.embed_table) - 1
+
+        for embedding_id in embedding_ids:
+            if embedding_id > last_embed_id:
+                logging.debug("embedding %d does not exist", embedding_id)
+                return
+            if embedding_id == last_embed_id:
+                return
+            self.embed_table[embedding_id] = self.embed_table[last_embed_id]
+            self.metadata_store.migrate_embedding_id(
+                from_embedding_id=last_embed_id,
+                to_embedding_id=embedding_id,
+            )
+            last_embed_id -= 1
+            pass
+
+        # now self.embed_table is meaningless after the 'last_embed_id'th entry
+
+        # try writing with np, hope that 'append' works...
+        np.save(self.embed_table_path, self.embed_table[: last_embed_id + 1])
+        self.embed_table = np.load(
+            self.embed_table_path,
+            mmap_mode="r",
+        )
+        return
+
+    pass
