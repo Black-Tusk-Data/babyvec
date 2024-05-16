@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from uuid import uuid4
 
@@ -151,6 +152,11 @@ class MetadataStoreSQLite(AbstractMetadataStore):
     def migrate_embedding_id(
         self, *, from_embedding_id: EmbeddingId, to_embedding_id: EmbeddingId
     ) -> None:
+        logging.info(
+            "migrating embedding %d to %d",
+            from_embedding_id,
+            to_embedding_id,
+        )
         with self.db.cursor() as cur:
             cur.execute(
                 """
@@ -213,5 +219,16 @@ class MetadataStoreSQLite(AbstractMetadataStore):
                 pass
             pass
         return embed_ids
+
+    def get_all_fragment_ids(self) -> list[str]:
+        return [
+            r["fragment_id"]
+            for r in self.db.query(
+                """
+            SELECT fragment_id
+              FROM fragment
+            """
+            )
+        ]
 
     pass

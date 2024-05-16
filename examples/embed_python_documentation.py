@@ -25,6 +25,7 @@ def main():
         persist_dir="./persist",
         n_computers=1,
         device="mps",
+        track_for_compacting=True,
     ) as vector_db:
         for lo in range(0, len(fragments), chunk_size):
             chunk = [

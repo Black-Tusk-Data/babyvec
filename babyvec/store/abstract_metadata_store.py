@@ -67,4 +67,8 @@ class AbstractMetadataStore(abc.ABC):
     ) -> None:
         pass
 
+    @abc.abstractmethod
+    def get_all_fragment_ids(self) -> list[str]:
+        pass
+
     pass

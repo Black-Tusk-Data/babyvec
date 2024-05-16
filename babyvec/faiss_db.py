@@ -104,7 +104,12 @@ class FaissDb:
         self.shutdown()
         if not self.track_for_compacting:
             return
-        for fragment_id in self.tracked_ingested_fragment_ids:
+        all_fragment_ids = set(self.metadata_store.get_all_fragment_ids())
+        delete_fragment_ids = all_fragment_ids.difference(
+            self.tracked_ingested_fragment_ids
+        )
+        logging.info("deleting %d fragments", len(delete_fragment_ids))
+        for fragment_id in delete_fragment_ids:
             self.metadata_store.delete_fragment(fragment_id)
             pass
         delete_embed_ids = self.metadata_store.compact_embeddings()

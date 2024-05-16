@@ -8,7 +8,6 @@ from babyvec.models import CorpusFragment
 os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 PERSIST_DIR = "/tmp/CorpusFragmentFaissDb_Test"
-shutil.rmtree(PERSIST_DIR, ignore_errors=True)
 
 
 FRAGMENTS = [
@@ -36,6 +35,10 @@ FRAGMENTS = [
 
 
 class FaissDb_Test(TestCase):
+    def setUp(self) -> None:
+        shutil.rmtree(PERSIST_DIR, ignore_errors=True)
+        return super().setUp()
+
     def test_ingesting_into_and_searching_db(self):
         with FaissDb(
             persist_dir=PERSIST_DIR,
