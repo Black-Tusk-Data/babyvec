@@ -62,4 +62,23 @@ class FaissDb_Test(TestCase):
             )
         return
 
+    def test_non_duplicate_inserts(self):
+        with FaissDb(
+            persist_dir=PERSIST_DIR,
+            device="cpu",
+        ) as db:
+            db.ingest_fragments(FRAGMENTS)
+            db.index_existing_fragments()
+            db.ingest_fragments(FRAGMENTS)
+            db.index_existing_fragments()
+            result = db.search(
+                "house pet",
+                4,
+            )
+            self.assertEqual(
+                set(res.fragment.text for res in result),
+                set(["cat", "dog", "dolphin", "seal"]),
+            )
+        return
+
     pass
