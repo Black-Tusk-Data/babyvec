@@ -157,11 +157,10 @@ class MetadataStoreSQLite(AbstractMetadataStore):
             INSERT OR REPLACE INTO text_embedding (
               embed_id,
               text
-            ) SELECT (
-              :to_embedding_id,
-              text
-            ) FROM text_embedding
-             WHERE embed_id = :from_embedding_id
+            ) SELECT :to_embedding_id,
+                     text
+                FROM text_embedding
+               WHERE embed_id = :from_embedding_id
             """,
                 {
                     "to_embedding_id": to_embedding_id,
@@ -182,7 +181,7 @@ class MetadataStoreSQLite(AbstractMetadataStore):
             cur.execute(
                 """
             DELETE FROM text_embedding
-            WHERE embedding_id = :from_embedding_id
+            WHERE embed_id = :from_embedding_id
             """,
                 {
                     "from_embedding_id": from_embedding_id,
@@ -194,7 +193,7 @@ class MetadataStoreSQLite(AbstractMetadataStore):
     def compact_embeddings(self) -> list[EmbeddingId]:
         rows = self.db.query(
             """
-            SELECT embed_id
+            SELECT te.embed_id
               FROM text_embedding te
          LEFT JOIN fragment f
                 ON f.embed_id = te.embed_id
