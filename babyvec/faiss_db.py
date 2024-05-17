@@ -31,6 +31,15 @@ class FaissDb:
         embed_store_type: type[AbstractEmbeddingStore] = EmbeddingStoreNumpy,
         track_for_compacting: bool = False,
     ):
+        """
+        Init a 'DB-like' interface, featuring:
+         - an embedding computer
+         - a persitent store for embeddings
+         - a liked metadata store for 'text fragments', which is many-to-one with stored embeddings
+         - the ability to define an Faiss index over the stored embeddings, to enable a nearest-nerighbour search over the embedding space
+        Options:
+         - track_for_compacting: If True, when the DB is closed, any fragment that was not ingested while it was open will be deleted, in addition to any orphaned embeddings.
+        """
         self.persist_options = PersistenceOptions(persist_dir=persist_dir)
         self.compute_options = EmbedComputeOptions(
             device=device,

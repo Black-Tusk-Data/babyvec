@@ -107,12 +107,18 @@ class FaissDb_Test(TestCase):
         ) as db:
             db.index_existing_fragments()
             result = db.search("house pet", 4)
-            self.assertEqual(len(result), 2)
+            self.assertEqual(
+                set(res.fragment.text for res in result),
+                set(["cat", "dog"]),
+            )
 
             db.ingest_fragments(FRAGMENTS[2:])
             db.index_existing_fragments()
             result = db.search("house pet", 4)
-            self.assertEqual(len(result), 4)
+            self.assertEqual(
+                set(res.fragment.text for res in result),
+                set(["cat", "dog", "dolphin", "seal"]),
+            )
             pass
         return
 
