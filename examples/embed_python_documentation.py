@@ -17,7 +17,7 @@ setup_logging()
 
 
 def main():
-    fragments = get_python_documentation_fragments()
+    fragments = get_python_documentation_fragments()[:5]
     logging.info("computing %d embeddings...", len(fragments))
     chunk_size = N_COMPUTERS * 1
     t0 = time.time()

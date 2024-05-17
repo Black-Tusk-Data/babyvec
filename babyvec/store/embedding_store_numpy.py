@@ -109,7 +109,7 @@ class EmbeddingStoreNumpy(AbstractEmbeddingStore):
 
         for embedding_id in reversed(sorted(embedding_ids)):
             if embedding_id > last_embed_id:
-                logging.info("embedding %d does not exist", embedding_id)
+                logging.debug("embedding %d does not exist", embedding_id)
                 continue
             if embedding_id == last_embed_id:
                 last_embed_id -= 1
@@ -123,11 +123,7 @@ class EmbeddingStoreNumpy(AbstractEmbeddingStore):
             pass
 
         # now embed_table is meaningless after the 'last_embed_id'th entry
-        os.remove(self.embed_table_path)
-        logging.info("now only have %d vectors", last_embed_id + 1)
         np.save(self.embed_table_path, embed_table[: last_embed_id + 1])
-        # with NpyAppendArray(self.embed_table_path, delete_if_exists=True) as npaa:
-        #     npaa.append(embed_table[:last_embed_id + 1])
         self.embed_table = np.load(
             self.embed_table_path,
             mmap_mode="r",
