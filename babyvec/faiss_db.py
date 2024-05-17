@@ -1,3 +1,4 @@
+import logging
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
 from babyvec.computer.embedding_computer_jina_bert import EmbeddingComputerJinaBert
 from babyvec.embed_provider.parallelized_cached_embed_provider import (
@@ -28,7 +29,17 @@ class FaissDb:
         computer_type: type[AbstractEmbeddingComputer] = EmbeddingComputerJinaBert,
         metadata_store_type: type[AbstractMetadataStore] = MetadataStoreSQLite,
         embed_store_type: type[AbstractEmbeddingStore] = EmbeddingStoreNumpy,
+        track_for_compacting: bool = False,
     ):
+        """
+        Init a 'DB-like' interface, featuring:
+         - an embedding computer
+         - a persitent store for embeddings
+         - a liked metadata store for 'text fragments', which is many-to-one with stored embeddings
+         - the ability to define an Faiss index over the stored embeddings, to enable a nearest-nerighbour search over the embedding space
+        Options:
+         - track_for_compacting: If True, when the DB is closed, any fragment that was not ingested while it was open will be deleted, in addition to any orphaned embeddings.
+        """
         self.persist_options = PersistenceOptions(persist_dir=persist_dir)
         self.compute_options = EmbedComputeOptions(
             device=device,
@@ -45,6 +56,8 @@ class FaissDb:
             store=self.embed_store,
         )
         self.index: FaissIndex | None = None
+        self.track_for_compacting = track_for_compacting
+        self.tracked_ingested_fragment_ids: set[str] = set()
         return
 
     def ingest_fragments(self, fragments: list[CorpusFragment]) -> None:
@@ -53,7 +66,10 @@ class FaissDb:
         )
 
         for embed_id, fragment in zip(embedding_ids, fragments):
-            self.embed_store.metadata_store.add_fragment(
+            if self.track_for_compacting:
+                self.tracked_ingested_fragment_ids.add(fragment.fragment_id)
+                pass
+            self.embed_store.metadata_store.ingest_fragment(
                 embedding_id=embed_id,
                 fragment=fragment,
             )
@@ -90,10 +106,24 @@ class FaissDb:
         return
 
     def __enter__(self):
+        self.tracked_ingested_fragment_ids = set()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.shutdown()
+        if not self.track_for_compacting:
+            return
+        all_fragment_ids = set(self.metadata_store.get_all_fragment_ids())
+        delete_fragment_ids = all_fragment_ids.difference(
+            self.tracked_ingested_fragment_ids
+        )
+        logging.info("deleting %d fragments", len(delete_fragment_ids))
+        for fragment_id in delete_fragment_ids:
+            self.metadata_store.delete_fragment(fragment_id)
+            pass
+        delete_embed_ids = self.metadata_store.compact_embeddings()
+        logging.info("deleting %d embeddings", len(delete_embed_ids))
+        self.embed_store.delete_embeddings(delete_embed_ids)
         return
 
     pass

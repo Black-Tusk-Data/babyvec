@@ -36,10 +36,39 @@ class AbstractMetadataStore(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def add_fragment(
+    def delete_fragment(
+        self,
+        fragment_id: str,
+    ) -> None:
+        pass
+
+    @abc.abstractmethod
+    def ingest_fragment(
         self,
         *,
         embedding_id: EmbeddingId,
         fragment: CorpusFragment,
-    ) -> str:
+    ) -> None:
         pass
+
+    @abc.abstractmethod
+    def compact_embeddings(self) -> list[EmbeddingId]:
+        """
+        Deletes all embeddings that are not used by a fragment, and returns their embedding IDs.
+        """
+        pass
+
+    @abc.abstractmethod
+    def migrate_embedding_id(
+        self,
+        *,
+        from_embedding_id: EmbeddingId,
+        to_embedding_id: EmbeddingId,
+    ) -> None:
+        pass
+
+    @abc.abstractmethod
+    def get_all_fragment_ids(self) -> list[str]:
+        pass
+
+    pass

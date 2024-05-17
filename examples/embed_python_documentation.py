@@ -2,6 +2,7 @@
 
 import logging
 import time
+from uuid import uuid4
 
 from babyvec.faiss_db import FaissDb
 from babyvec.models import CorpusFragment
@@ -16,7 +17,7 @@ setup_logging()
 
 
 def main():
-    fragments = get_python_documentation_fragments()
+    fragments = get_python_documentation_fragments()[:5]
     logging.info("computing %d embeddings...", len(fragments))
     chunk_size = N_COMPUTERS * 1
     t0 = time.time()
@@ -24,10 +25,12 @@ def main():
         persist_dir="./persist",
         n_computers=1,
         device="mps",
+        track_for_compacting=True,
     ) as vector_db:
         for lo in range(0, len(fragments), chunk_size):
             chunk = [
                 CorpusFragment(
+                    fragment_id=str(uuid4()),
                     text=fragment,
                     metadata={},
                 )
