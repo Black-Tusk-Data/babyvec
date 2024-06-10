@@ -1,7 +1,15 @@
 import abc
 import os
 
-from babyvec.models import CorpusFragment, EmbeddingId, PersistenceOptions
+import numpy as np
+import numpy.typing as npt
+
+from babyvec.models import (
+    CorpusFragment,
+    EmbeddingId,
+    PersistenceOptions,
+    FragmentFilter,
+)
 
 
 class AbstractMetadataStore(abc.ABC):
@@ -69,6 +77,12 @@ class AbstractMetadataStore(abc.ABC):
 
     @abc.abstractmethod
     def get_all_fragment_ids(self) -> list[str]:
+        pass
+
+    @abc.abstractmethod
+    def get_embedding_ids_for_fragment_filter(
+        self, fragment_query: FragmentFilter
+    ) -> npt.NDArray[np.int64]:
         pass
 
     pass
