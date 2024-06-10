@@ -1,7 +1,8 @@
-from typing import NamedTuple
+from typing import Any, Literal, NamedTuple
 
 import numpy as np
 import numpy.typing as npt
+
 
 EmbeddingScalarType = np.float32
 Embedding = npt.NDArray[EmbeddingScalarType]
@@ -35,3 +36,9 @@ class DbSearchResult(NamedTuple):
     index_search_result: IndexSearchResult
     fragment: CorpusFragment
     pass
+
+
+FragmentComparator = Literal["=", "like", "<", ">", "<=", ">="]
+FragmentColumnFilter = tuple[str, FragmentComparator, Any]
+# disjunction of conjunctions
+FragmentFilter = list[list[FragmentColumnFilter]]

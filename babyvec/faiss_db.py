@@ -1,4 +1,8 @@
 import logging
+
+import numpy as np
+import numpy.typing as npt
+
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
 from babyvec.computer.embedding_computer_jina_bert import EmbeddingComputerJinaBert
 from babyvec.embed_provider.parallelized_cached_embed_provider import (
@@ -9,7 +13,9 @@ from babyvec.models import (
     CorpusFragment,
     DbSearchResult,
     EmbedComputeOptions,
+    EmbeddingId,
     PersistenceOptions,
+    FragmentFilter,
 )
 from babyvec.store.abstract_embedding_store import (
     AbstractEmbeddingStore,
@@ -55,7 +61,6 @@ class FaissDb:
             computer_type=computer_type,
             store=self.embed_store,
         )
-        self.index: FaissIndex | None = None
         self.track_for_compacting = track_for_compacting
         self.tracked_ingested_fragment_ids: set[str] = set()
         return
@@ -76,20 +81,47 @@ class FaissDb:
             pass
         return
 
-    def index_existing_fragments(self) -> None:
-        self.index = FaissIndex(
-            computer=self.embedding_provider.computer,
-            vectors=self.embed_store.embed_table,
+    def _get_index(
+        self, embedding_ids: npt.NDArray[np.int64] | None = None
+    ) -> FaissIndex:
+        vectors = (
+            self.embed_store.embed_table
+            if embedding_ids is None
+            else self.embed_store.embed_table[embedding_ids]
         )
-        return
+        return FaissIndex(
+            computer=self.embedding_provider.computer,
+            vectors=vectors,
+        )
 
-    def search(self, query: str, k_nearest: int) -> list[DbSearchResult]:
-        assert self.index
-        index_hits = self.index.search(query, k_nearest)
+    def search(
+        self,
+        query: str,
+        k_nearest: int,
+        *,
+        fragment_filter: FragmentFilter | None = None,
+    ) -> list[DbSearchResult]:
+        embedding_ids: npt.NDArray[np.int64] | None = None
+        if fragment_filter:
+            embedding_ids = (
+                self.embed_store.metadata_store.get_embedding_ids_for_fragment_filter(
+                    fragment_filter
+                )
+            )
+            if not embedding_ids.shape[0]:
+                return []
+            pass
+
+        index = self._get_index(embedding_ids)
+        index_hits = index.search(query, k_nearest)
         results: list[DbSearchResult] = []
         for hit in index_hits:
+            if hit.embedding_id < 0:
+                continue
             for fragment in self.embed_store.metadata_store.get_fragments_for_embedding(
                 hit.embedding_id
+                if embedding_ids is None
+                else int(embedding_ids[hit.embedding_id])
             ):
                 results.append(
                     DbSearchResult(

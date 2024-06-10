@@ -1,10 +1,20 @@
 import json
 import logging
 import os
-from uuid import uuid4
+import typing
 
+import numpy as np
+import numpy.typing as npt
+
+from babyvec.faiss_db import FragmentFilter
 from babyvec.lib.sqlitedb import SQLiteDB
-from babyvec.models import CorpusFragment, EmbeddingId, PersistenceOptions
+from babyvec.models import (
+    CorpusFragment,
+    EmbeddingId,
+    FragmentComparator,
+    PersistenceOptions,
+    FragmentFilter,
+)
 from babyvec.store.abstract_metadata_store import AbstractMetadataStore
 
 DBNAME = "bbvec.sq3"
@@ -230,5 +240,41 @@ class MetadataStoreSQLite(AbstractMetadataStore):
             """
             )
         ]
+
+    def get_embedding_ids_for_fragment_filter(
+        self, fragment_query: FragmentFilter
+    ) -> npt.NDArray[np.int64]:
+        comparators = set(typing.get_args(FragmentComparator))
+        disjunctions: list[str] = []
+
+        params = {}
+        for i, conjunctions in enumerate(fragment_query):
+            effective_conjunctions: list[str] = []
+            for j, conjunction in enumerate(conjunctions):
+                col, comparator, val = conjunction
+                assert comparator in comparators
+                col_param = f"col_{i}_{j}"
+                val_param = f"val_{i}_{j}"
+                effective_conjunctions.append(
+                    f"metadata_json->>:{col_param} {comparator} :{val_param}"
+                )
+                params[col_param] = col
+                params[val_param] = val
+                pass
+            disjunctions.append(
+                " AND ".join([f"({s})" for s in effective_conjunctions])
+            )
+            pass
+        filter_clause = " OR ".join([f"({s})" for s in disjunctions])
+        rows = self.db.query(
+            f"""
+            SELECT embed_id,
+                   metadata_json
+              FROM fragment
+             WHERE {filter_clause}
+            """,
+            params,
+        )
+        return np.array([r["embed_id"] for r in rows])
 
     pass

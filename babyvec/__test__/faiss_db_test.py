@@ -45,7 +45,6 @@ class FaissDb_Test(TestCase):
             device="cpu",
         ) as db:
             db.ingest_fragments(FRAGMENTS)
-            db.index_existing_fragments()
             result = db.search(
                 "house pet",
                 4,
@@ -71,9 +70,7 @@ class FaissDb_Test(TestCase):
             device="cpu",
         ) as db:
             db.ingest_fragments(FRAGMENTS)
-            db.index_existing_fragments()
             db.ingest_fragments(FRAGMENTS)
-            db.index_existing_fragments()
             result = db.search(
                 "house pet",
                 4,
