@@ -4,18 +4,22 @@ import os
 from setuptools import find_packages, setup
 
 
+lib_folder = os.path.dirname(os.path.realpath(__file__))
+
+
+def read_requirements_txt():
+    with open(os.path.join(lib_folder, "requirements.txt")) as f:
+        return [line.strip() for line in f.readlines() if line.strip()]
+    pass
+
+
 requirements = [
-    "faiss-cpu",
-    "nltk",
-    "npy_append_array",
-    "numpy",
-    "torch",
-    "transformers",
+    *read_requirements_txt(),
 ]
 
 setup(
     name="babyvec",
-    version="v0.2.0",
+    version="v0.2.1",
     description="Natural language embedding tools",
     author="Liam Tengelis",
     author_email="liam@blacktuskdata.com",

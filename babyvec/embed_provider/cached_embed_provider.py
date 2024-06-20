@@ -8,7 +8,7 @@ from babyvec.models import Embedding, EmbeddingId
 from babyvec.store.abstract_embedding_store import AbstractEmbeddingStore
 
 
-class CachedEmbedProvider(abc.ABC):
+class CachedEmbedProvider:
     """
     This interface is responsible for combining a 'computer' and a 'store' to achieve persistent embeddings.
     """
