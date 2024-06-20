@@ -1,3 +1,3 @@
 #!/bin/bash
 
-find ./babyvec -name '*_test.py' | xargs python -m unittest
+TOKENIZERS_PARALLELISM=true find ./babyvec -name '*_test.py' | xargs python -m unittest

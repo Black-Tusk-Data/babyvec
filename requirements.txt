@@ -1,0 +1,6 @@
+faiss-cpu
+nltk
+npy_append_array
+numpy==1.26.4
+torch
+transformers

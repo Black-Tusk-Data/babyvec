@@ -5,6 +5,7 @@ import numpy.typing as npt
 
 from babyvec.computer.abstract_embedding_computer import AbstractEmbeddingComputer
 from babyvec.computer.embedding_computer_jina_bert import EmbeddingComputerJinaBert
+from babyvec.embed_provider.cached_embed_provider import CachedEmbedProvider
 from babyvec.embed_provider.parallelized_cached_embed_provider import (
     ParallelizedCachedEmbedProvider,
 )
@@ -13,7 +14,6 @@ from babyvec.models import (
     CorpusFragment,
     DbSearchResult,
     EmbedComputeOptions,
-    EmbeddingId,
     PersistenceOptions,
     FragmentFilter,
 )
@@ -55,12 +55,21 @@ class FaissDb:
             metadata_store=self.metadata_store,
             persist_options=self.persist_options,
         )
-        self.embedding_provider = ParallelizedCachedEmbedProvider(
-            n_computers=n_computers,
-            compute_options=self.compute_options,
-            computer_type=computer_type,
-            store=self.embed_store,
-        )
+        self.embedding_provider: CachedEmbedProvider
+        if n_computers == 1:
+            self.embedding_provider = CachedEmbedProvider(
+                computer=computer_type(self.compute_options),
+                store=self.embed_store,
+            )
+            pass
+        else:
+            self.embedding_provider = ParallelizedCachedEmbedProvider(
+                n_computers=n_computers,
+                compute_options=self.compute_options,
+                computer_type=computer_type,
+                store=self.embed_store,
+            )
+            pass
         self.track_for_compacting = track_for_compacting
         self.tracked_ingested_fragment_ids: set[str] = set()
         return
